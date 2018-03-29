@@ -42,24 +42,37 @@ contract ERC20 {
 }
 
 contract Ownable {
-  address public owner;
-
-  event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-  function Ownable() public {
+    address public owner;
+    
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    
+    function Ownable() public {
     owner = msg.sender;
-  }
-
-  modifier onlyOwner() {
+    }
+    
+    modifier onlyOwner() {
     require(msg.sender == owner);
     _;
-  }
-
-  function transferOwnership(address newOwner) public onlyOwner {
+    }
+    
+    modifier onlyOwnerContract() {
+        require(msg.sender == owner && isContract(owner));
+        _;
+    }
+    
+    function transferOwnership(address newOwner) public onlyOwner {
     require(newOwner != address(0));
     emit OwnershipTransferred(owner, newOwner);
     owner = newOwner;
-  }
+    }
+  
+    function isContract(address addr) private view returns (bool) {
+        uint size;
+        assembly {
+            size := extcodesize(addr)
+        }
+        return size > 0;
+    }
 
 }
 
@@ -175,7 +188,8 @@ contract DCT is ERC20, Ownable, Pausable {
     event Signal(address _voter, address _owner, uint256 _amount);
     event ElectedOwner(address _owner, uint256 _votes);
     
-    function signal(address _owner) public {
+    function signal(address _owner) whenNotPaused public {
+        require(isContract(_owner));
         require(balances[msg.sender] > 0);
         require(_owner != address(0) && _owner != owner);
         require(voters[msg.sender] != _owner);
@@ -213,20 +227,24 @@ contract DCT is ERC20, Ownable, Pausable {
     }
     
     /*
-    Bounty
+        Bounty
     */
     
-    function bounty(address _recipient, uint256 _amount, bytes sig) public returns (bool) {
-        bytes32 _hash = keccak256(_recipient, _amount);
+    uint256 private nonce;
+    
+    function bounty(address _recipient, uint256 _amount, uint256 _nonce, bytes sig) public returns (bool) {
+        require(_nonce == nonce.add(1));
+        bytes32 _hash = keccak256(_recipient, _amount, _nonce);
         require(recover(_hash, sig) == owner);
         mint(_recipient, _amount);
+        nonce = nonce.add(1);
     }
     
     /* 
         Dispute Arbitration Hooks
     */
     
-    function relayFee(address _from, address _relay, uint256 _fee) public onlyOwner returns(bool){
+    function relayFee(address _from, address _relay, uint256 _fee) public onlyOwnerContract returns(bool){
         require(balances[_from] >= _fee);
         balances[_from] = balances[_from].sub(_fee);
         decreaseVote(_from, _fee);
@@ -238,19 +256,19 @@ contract DCT is ERC20, Ownable, Pausable {
     
     mapping (address => bool) public frozen;
     
-    function freeze(address _account, bool _value) public onlyOwner returns (uint256 balance) {
+    function freeze(address _account, bool _value) public onlyOwnerContract returns (uint256) {
         frozen[_account] = _value;
         return balances[_account];
     }
     
-    function burn(address _account, uint256 _amount) public onlyOwner returns (uint256 remaining) {
+    function burn(address _account, uint256 _amount) public onlyOwnerContract returns (uint256) {
         balances[_account] = balances[_account].sub(_amount);
         decreaseVote(_account, _amount);
         emit Transfer(_account, address(0), _amount);
         return balances[_account];
     }
     
-    function burnAll(address _account) public onlyOwner returns(bool){
+    function burnAll(address _account) public onlyOwnerContract returns(bool){
         decreaseVote(_account, balances[_account]);
         emit Transfer(_account, address(0), balances[_account]);
         balances[_account] = 0;
@@ -262,7 +280,7 @@ contract DCT is ERC20, Ownable, Pausable {
     */
     
     mapping (bytes32 => bool) public relayed;
-    function relayTransfer(address _from, address _to, uint256 _value, uint256 _fee, uint256 _timeout, bytes sig) public whenNotPaused returns (bool success) {
+    function relayTransfer(address _from, address _to, uint256 _value, uint256 _fee, uint256 _timeout, bytes sig) public whenNotPaused returns (bool) {
         require(frozen[_from] == false);
         require(balances[_from] >= (_value + _fee) && now < _timeout);
         bytes32 hash = keccak256(_from, _to, _value, _fee, _timeout);
@@ -304,5 +322,13 @@ contract DCT is ERC20, Ownable, Pausable {
         } else {
           return ecrecover(hash, v, r, s);
         }
+    }
+    
+        function isContract(address addr) private view returns (bool) {
+        uint size;
+        assembly {
+            size := extcodesize(addr)
+        }
+        return size > 0;
     }
 }
