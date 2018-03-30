@@ -81,7 +81,7 @@ contract Pausable is Ownable {
   event Unpause();
 
   bool public paused = true;
-
+  
   modifier whenNotPaused() {
     require(!paused || msg.sender == owner);
     _;
@@ -168,9 +168,17 @@ contract DCT is ERC20, Ownable, Pausable {
         Minting
     */
     
+    address public saleContract;
+    
+    function setSaleContract(address _contract) public onlyOwner {
+        require(isContract(_contract));
+        saleContract = _contract;
+    }
+    
     event Mint(address indexed to, uint256 amount);
     
-    function mint(address _to, uint256 _amount) onlyOwner public returns (bool) {
+    function mint(address _to, uint256 _amount) public returns (bool) {
+    require(msg.sender == owner || msg.sender == saleContract);
     totalSupply = totalSupply.add(_amount);
     balances[_to] = balances[_to].add(_amount);
     increaseVote(_to, _amount);
