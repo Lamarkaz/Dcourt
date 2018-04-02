@@ -1,6 +1,7 @@
 pragma solidity ^0.4.18;
 
 contract DCT {
+    function getOwner() public view returns(address);
     mapping (address => uint256) public balances;
     mapping (address => bool) public frozen;
     function balanceOf(address _owner) public view returns (uint256 balance);
@@ -57,6 +58,7 @@ library SafeMath {
 contract DCArbitration {
     using SafeMath for uint256;
     DCT DCToken;
+    
     /*
         Variables
     */
@@ -127,6 +129,11 @@ contract DCArbitration {
         
     */
     
+    modifier onlyWhenOwner(){
+         require(DCToken.getOwner() == address(this));
+        _;
+    }
+    
     modifier onlyContract(){
         require(isContract(msg.sender));
         _;
@@ -185,7 +192,7 @@ contract DCArbitration {
         roundsPerHalving = _roundsPerHalving;
         genesisBlock = block.number;
     }
-    function register(bytes32 _ToA, uint256 _trialDuration, string _URL) onlyContract public returns(bool){
+    function register(bytes32 _ToA, uint256 _trialDuration, string _URL) onlyContract onlyWhenOwner public returns(bool){
         require(_trialDuration >= minTrialPeriod);
         require(clients[msg.sender].trialDuration != 0);
         clients[msg.sender].ToA = _ToA;
@@ -195,7 +202,7 @@ contract DCArbitration {
         return true;
     }
     
-    function fileCase(address _defendant, string _statement, string _title) public onlyContract returns(uint256){
+    function fileCase(address _defendant, string _statement, string _title) public onlyContract onlyWhenOwner returns(uint256){
         require(clients[msg.sender].trialDuration != 0);
         caseCounter++;
         Case storage filedCase = cases[caseCounter];
@@ -218,7 +225,7 @@ contract DCArbitration {
         return caseCounter;
     }
     
-    function deposit() public{
+    function deposit() onlyWhenOwner public{
         uint256 balance = DCToken.balanceOf(msg.sender);
         require(balance > 0);
         require(jurors[msg.sender].deposit == 0);
@@ -227,7 +234,7 @@ contract DCArbitration {
         DCToken.freeze(msg.sender, true);
     }
     
-    function withdraw() onlyJuror public{
+    function withdraw() onlyJuror onlyWhenOwner public{
         require(jurors[msg.sender].activeCases == 0);
         DCToken.freeze(msg.sender, false);
     }
@@ -241,7 +248,7 @@ contract DCArbitration {
         return keccak256(dec,nonce);
     }
     
-    function vote(uint256 _caseID, bytes32 hash, uint256 _amount) onlyJuror public returns(uint256){
+    function vote(uint256 _caseID, bytes32 hash, uint256 _amount) onlyJuror onlyWhenOwner public returns(uint256){
         require((block.number >= cases[_caseID].block + clients[cases[_caseID].client].trialDuration) && block.number < cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod); 
         
         require(votes[msg.sender][_caseID].amount == 0);
@@ -281,7 +288,7 @@ contract DCArbitration {
   
         return true;
     }
-    function finalize(uint256 _caseID) public returns(bool){
+    function finalize(uint256 _caseID) public onlyWhenOwner returns(bool){
          require(block.number > cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod + unlockingPeriod);
          require(cases[_caseID].decided == false);
          bool verdict = cases[_caseID].ayes > cases[_caseID].nayes;
@@ -295,7 +302,7 @@ contract DCArbitration {
          cases[_caseID].round = (block.number.sub(genesisBlock)).div(blocksPerRound);
          return verdict;
     }
-    function claimReward() onlyJuror returns(bool){
+    function claimReward() onlyJuror onlyWhenOwner returns(bool){
         require(jurors[msg.sender].activeCases > 0);
         uint256 NCases = jurors[msg.sender].caseCount;
         uint256 currentRound = uint((block.number.sub(genesisBlock)).div(blocksPerRound)); 
@@ -324,7 +331,7 @@ contract DCArbitration {
 
     
     
-    function addEvidence(uint256 _caseID, string _body) public onlyCaseParty(_caseID) returns (uint256){
+    function addEvidence(uint256 _caseID, string _body) public onlyWhenOwner onlyCaseParty(_caseID) returns (uint256){
         require(cases[_caseID].client != address(0));
         require(block.number < cases[_caseID].block + clients[cases[_caseID].client].trialDuration); 
         uint256 evidenceLength = cases[_caseID]._evidence.length;

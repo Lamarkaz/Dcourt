@@ -124,6 +124,9 @@ contract DCT is ERC20, Ownable, Pausable {
         return totalSupply;
     }
 
+    function getOwner() public view returns(address){
+        return owner;   
+    }
     function transfer(address _to, uint256 _value) public whenNotPaused returns (bool) {
         require(frozen[msg.sender] == false);
         require(_to != address(0));
