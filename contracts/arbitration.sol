@@ -194,7 +194,7 @@ contract DCArbitration {
     }
     function register(bytes32 _ToA, uint256 _trialDuration, string _URL) onlyContract onlyWhenOwner public returns(bool){
         require(_trialDuration >= minTrialPeriod);
-        require(clients[msg.sender].trialDuration != 0);
+        require(clients[msg.sender].trialDuration == 0);
         clients[msg.sender].ToA = _ToA;
         clients[msg.sender].trialDuration = _trialDuration;
         clients[msg.sender].URL = _URL;
