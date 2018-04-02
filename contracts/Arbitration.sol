@@ -1,3 +1,4 @@
+
 pragma solidity ^0.4.18;
 
 contract DCT {
@@ -11,9 +12,11 @@ contract DCT {
     function burn(address _account, uint256 _amount) public returns (uint256);
     function burnAll(address _account) public returns(bool);
 }
+
 contract ClientContract{
     function onVerdict(uint256, bool) public returns(bool); //Case ID, Decision. 
 }
+
 library SafeMath {
 
   /**
@@ -150,7 +153,7 @@ contract DCArbitration {
     /*
         Enumerators
     */
-    enum phase{
+    enum phase {
         TRIAL,
         VOTING,
         UNLOCKING,
@@ -262,30 +265,31 @@ contract DCArbitration {
            cases[_caseID]._phase = phase.VOTING; 
         }
         jurors[msg.sender].activeCases = jurors[msg.sender].activeCases.add(1);
-        return _caseID;
+        return _caseID; //?
     }
     function unlock(bool decision, string nonce, uint256 _caseID) onlyJuror public returns(bool){
         require(votes[msg.sender][_caseID].amount > 0);
         require((block.number >= cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod) && (block.number < cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod + unlockingPeriod));
         require(votes[msg.sender][_caseID].unlocked == false);
         uint8 dec;
-        jurors[msg.sender].caseCount = jurors[msg.sender].caseCount.add(1);
-        jurors[msg.sender].cases[jurors[msg.sender].caseCount] = _caseID;
-        if(decision == true)
+        if(decision == true){
             dec = 1;
-        else
+        }else{
             dec = 0;
+        }
         bytes32 _hash = keccak256(dec,nonce);
         require(_hash == votes[msg.sender][_caseID]._hash);
-        if(decision == true)
+        jurors[msg.sender].caseCount = jurors[msg.sender].caseCount.add(1);
+        jurors[msg.sender].cases[jurors[msg.sender].caseCount] = _caseID;
+        if(decision == true){
             cases[_caseID].ayes = cases[_caseID].ayes.add(votes[msg.sender][_caseID].amount);
-        else
-        cases[_caseID].nayes = cases[_caseID].nayes.add(votes[msg.sender][_caseID].amount);
+        }else{
+            cases[_caseID].nayes = cases[_caseID].nayes.add(votes[msg.sender][_caseID].amount);
+        }
         votes[msg.sender][_caseID].unlocked = true;
         votes[msg.sender][_caseID].nonce = nonce;
         votes[msg.sender][_caseID].decision = decision;
         jurors[msg.sender].activeCases = jurors[msg.sender].activeCases.sub(1);
-  
         return true;
     }
     function finalize(uint256 _caseID) public onlyWhenOwner returns(bool){
@@ -302,23 +306,22 @@ contract DCArbitration {
          cases[_caseID].round = (block.number.sub(genesisBlock)).div(blocksPerRound);
          return verdict;
     }
-    function claimReward() onlyJuror onlyWhenOwner returns(bool){
-        require(jurors[msg.sender].activeCases > 0);
+    function claimReward() public onlyJuror onlyWhenOwner returns(bool){ // optional iterations argument
+        require(jurors[msg.sender].caseCount > 0); // activeCases >> caseCount 
         uint256 NCases = jurors[msg.sender].caseCount;
         uint256 currentRound = uint((block.number.sub(genesisBlock)).div(blocksPerRound)); 
         int256 Claimed;
+        uint256 one = 1;
         for(uint256 i=1; i <= NCases; i++){
             uint256 individualRR;
-            if(cases[jurors[msg.sender].cases[i]].decided == false || cases[jurors[msg.sender].cases[i]].round == currentRound) continue;
+            if(/* cases[jurors[msg.sender].cases[i]].decided == false || */ cases[jurors[msg.sender].cases[i]].round == currentRound) continue;
             // uint256 tokenShare = ;
             uint256 halvings = (cases[jurors[msg.sender].cases[i]].round / roundsPerHalving);
-            uint256 one = 1;
             individualRR = (one.div(2**halvings)).mul(RoundReward);
-         
             if(cases[jurors[msg.sender].cases[i]].verdict == votes[msg.sender][jurors[msg.sender].cases[i]].decision){
                 Claimed += int(votes[msg.sender][jurors[msg.sender].cases[i]].amount * (1/rounds[currentRound].caseCount) * individualRR);
                 // DCToken.mint(msg.sender, Claimed);
-            }else{
+            }else{ //75% threshold?
                 Claimed -= int(votes[msg.sender][jurors[msg.sender].cases[i]].amount * (1/rounds[currentRound].caseCount) * individualRR);
             }
         }
@@ -327,9 +330,8 @@ contract DCArbitration {
         }else if(Claimed < 0){
             DCToken.burn(msg.sender, uint256(Claimed));
         }
+        //Remove cases from array
     }
-
-    
     
     function addEvidence(uint256 _caseID, string _body) public onlyWhenOwner onlyCaseParty(_caseID) returns (uint256){
         require(cases[_caseID].client != address(0));
