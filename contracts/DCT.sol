@@ -222,7 +222,8 @@ contract DCT is ERC20, Ownable, Pausable {
     }
     
     function ownerPercentage(address _owner) public view returns (uint256) {
-        return (owners[_owner].div(totalSupply)).mul(100);
+        if(owners[_owner] == totalSupply) return 100;
+	return (owners[_owner].div(totalSupply)).mul(100);
     }
     
     function decreaseVote(address _voter, uint256 _amount) private {
