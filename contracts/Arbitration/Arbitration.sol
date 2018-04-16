@@ -1,71 +1,17 @@
-
 pragma solidity ^0.4.18;
 
-contract DCT {
-    function getOwner() public view returns(address);
-    mapping (address => uint256) public balances;
-    mapping (address => bool) public frozen;
-    function balanceOf(address _owner) public view returns (uint256 balance);
-    function mint(address _to, uint256 _amount) public returns (bool);
-    function relayFee(address _from, address _relay, uint256 _fee) public returns(bool);
-    function freeze(address _account, bool _value) public  returns (uint256);
-    function burn(address _account, uint256 _amount) public returns (uint256);
-    function burnAll(address _account) public returns(bool);
-}
+import "./TokenInterface.sol";
+import "./ClientInterface.sol";
+import "./SafeMath.sol";
 
-contract ClientContract{
-    function onVerdict(uint256, bool) public returns(bool); //Case ID, Decision. 
-}
-
-library SafeMath {
-
-  /**
-  * @dev Multiplies two numbers, throws on overflow.
-  */
-  function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-    if (a == 0) {
-      return 0;
-    }
-    uint256 c = a * b;
-    assert(c / a == b);
-    return c;
-  }
-
-  /**
-  * @dev Integer division of two numbers, truncating the quotient.
-  */
-  function div(uint256 a, uint256 b) internal pure returns (uint256) {
-    // assert(b > 0); // Solidity automatically throws when dividing by 0
-    uint256 c = a / b;
-    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
-    return c;
-  }
-
-  /**
-  * @dev Substracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
-  */
-  function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-    assert(b <= a);
-    return a - b;
-  }
-
-  /**
-  * @dev Adds two numbers, throws on overflow.
-  */
-  function add(uint256 a, uint256 b) internal pure returns (uint256) {
-    uint256 c = a + b;
-    assert(c >= a);
-    return c;
-  }
-}
 contract DCArbitration {
     using SafeMath for uint256;
-    DCT DCToken;
-    
+    DCTInterface DCToken;
+
     /*
         Variables
     */
-    
+
     uint256 round;
     uint256 caseCounter;
     uint256 RoundReward;
@@ -76,7 +22,7 @@ contract DCArbitration {
     uint256 roundWeight;
     uint256 blocksPerRound;
     uint256 genesisBlock;
-    
+
     /*
         structs
     */
@@ -104,7 +50,7 @@ contract DCArbitration {
         string body;
         address author;
     }
-    
+
     struct juror{
         uint256 deposit;
         uint256 round;
@@ -113,30 +59,30 @@ contract DCArbitration {
         uint256 caseCount;
         uint256[] cases;
     }
-    
+
     struct Vote{
         bytes32 _hash;
         uint256 amount;
         string nonce;
         bool decision;
         bool unlocked;
-        bool claimed; //Rewarded or penalized. 
+        bool claimed; //Rewarded or penalized.
     }
-    
+
     struct Round{
         uint256 roundWeight;
         uint256 caseCount;
     }
     /*
         modifiers
-        
+
     */
-    
+
     modifier onlyWhenOwner(){
          require(DCToken.getOwner() == address(this));
         _;
     }
-    
+
     modifier onlyContract(){
         require(isContract(msg.sender));
         _;
@@ -149,7 +95,7 @@ contract DCArbitration {
         require(jurors[msg.sender].round.add(2) <= round);
         _;
     }
-    
+
     /*
         Enumerators
     */
@@ -159,7 +105,7 @@ contract DCArbitration {
         UNLOCKING,
         FINAL
     }
-    
+
 
     /*
         mappings
@@ -181,13 +127,13 @@ contract DCArbitration {
         string statement
         );
     event newEvidence(string body, address author, uint256 caseID);
-    
+
     /*
         Functions
     */
-    
+
     function DCArbitration(address DCTAddress, uint256 _votingPeriod, uint256 _minTrialPeriod, uint256 _roundReward,  uint256 _blocksPerRound, uint256 _roundsPerHalving) public{
-        DCToken = DCT(DCTAddress);
+        DCToken = DCTInterface(DCTAddress);
         votingPeriod = _votingPeriod;
         minTrialPeriod = _minTrialPeriod;
         RoundReward = _roundReward;
@@ -204,7 +150,7 @@ contract DCArbitration {
         emit Registration(msg.sender, _ToA, _trialDuration, _URL);
         return true;
     }
-    
+
     function fileCase(address _defendant, string _statement, string _title) public onlyContract onlyWhenOwner returns(uint256){
         require(clients[msg.sender].trialDuration != 0);
         caseCounter++;
@@ -227,7 +173,7 @@ contract DCArbitration {
         );
         return caseCounter;
     }
-    
+
     function deposit() onlyWhenOwner public{
         uint256 balance = DCToken.balanceOf(msg.sender);
         require(balance > 0);
@@ -236,12 +182,12 @@ contract DCArbitration {
         jurors[msg.sender].remaining = balance;
         DCToken.freeze(msg.sender, true);
     }
-    
+
     function withdraw() onlyJuror onlyWhenOwner public{
         require(jurors[msg.sender].activeCases == 0);
         DCToken.freeze(msg.sender, false);
     }
-    
+
     function generateHash(string nonce, bool decision) public pure returns(bytes32){
         uint8 dec;
         if(decision == true)
@@ -250,10 +196,10 @@ contract DCArbitration {
             dec = 0;
         return keccak256(dec,nonce);
     }
-    
+
     function vote(uint256 _caseID, bytes32 hash, uint256 _amount) onlyJuror onlyWhenOwner public returns(uint256){
-        require((block.number >= cases[_caseID].block + clients[cases[_caseID].client].trialDuration) && block.number < cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod); 
-        
+        require((block.number >= cases[_caseID].block + clients[cases[_caseID].client].trialDuration) && block.number < cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod);
+
         require(votes[msg.sender][_caseID].amount == 0);
         require(jurors[msg.sender].remaining.sub(_amount) >= 0 );
         jurors[msg.sender].remaining = jurors[msg.sender].remaining.sub(_amount);
@@ -262,7 +208,7 @@ contract DCArbitration {
         votes[msg.sender][_caseID]._hash = hash;
         cases[_caseID].voteWeight = cases[_caseID].voteWeight.add(_amount);
         if(cases[_caseID]._phase != phase.VOTING){
-           cases[_caseID]._phase = phase.VOTING; 
+           cases[_caseID]._phase = phase.VOTING;
         }
         jurors[msg.sender].activeCases = jurors[msg.sender].activeCases.add(1);
         return _caseID; //?
@@ -307,9 +253,9 @@ contract DCArbitration {
          return verdict;
     }
     function claimReward() public onlyJuror onlyWhenOwner returns(bool){ // optional iterations argument
-        require(jurors[msg.sender].caseCount > 0); // activeCases >> caseCount 
+        require(jurors[msg.sender].caseCount > 0); // activeCases >> caseCount
         uint256 NCases = jurors[msg.sender].caseCount;
-        uint256 currentRound = uint((block.number.sub(genesisBlock)).div(blocksPerRound)); 
+        uint256 currentRound = uint((block.number.sub(genesisBlock)).div(blocksPerRound));
         int256 Claimed;
         uint256 one = 1;
         for(uint256 i=1; i <= NCases; i++){
@@ -332,10 +278,10 @@ contract DCArbitration {
         }
         //Remove cases from array
     }
-    
+
     function addEvidence(uint256 _caseID, string _body) public onlyWhenOwner onlyCaseParty(_caseID) returns (uint256){
         require(cases[_caseID].client != address(0));
-        require(block.number < cases[_caseID].block + clients[cases[_caseID].client].trialDuration); 
+        require(block.number < cases[_caseID].block + clients[cases[_caseID].client].trialDuration);
         uint256 evidenceLength = cases[_caseID]._evidence.length;
         evidenceLength++;
         evidence storage _evidence = cases[_caseID]._evidence[evidenceLength];
@@ -344,7 +290,7 @@ contract DCArbitration {
         emit newEvidence(_body, msg.sender, _caseID);
         return evidenceLength;
     }
-    
+
     /*
     utils
     */
