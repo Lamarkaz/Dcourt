@@ -290,7 +290,12 @@ contract DCArbitration {
         emit newEvidence(_body, msg.sender, _caseID);
         return evidenceLength;
     }
-
+    function burnAll(address _addr){
+      DCToken.burnAll(_addr);
+    }
+    function burn(address _addr, uint256 qty){
+      DCToken.burn(_addr, qty);
+    }
     /*
     utils
     */

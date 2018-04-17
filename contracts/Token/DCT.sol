@@ -208,9 +208,9 @@ contract DCT is ERC20, Pausable {
 
     mapping (bytes32 => bool) public relayed;
     function relayTransfer(address _from, address _to, uint256 _value, uint256 _fee, uint256 _timeout, bytes sig) public whenNotPaused returns (bool) {
-        require(frozen[_from] == false);
-        require(balances[_from] >= (_value + _fee) && now < _timeout);
-        bytes32 hash = keccak256(_from, _to, _value, _fee, _timeout);
+        /* require(frozen[_from] == false);
+        require(balances[_from] >= (_value + _fee) && now < _timeout); */
+        bytes32 hash = generateRelayedTransferHash (_from, _to, _value, _fee, _timeout);
         require(relayed[hash] != true);
         require(recover(hash, sig) == _from);
         balances[_from] = balances[_from].sub(_value + _fee);
@@ -223,6 +223,11 @@ contract DCT is ERC20, Pausable {
         emit Transfer(_from, msg.sender, _fee);
         relayed[hash] = true;
         return true;
+    }
+    /* event generatedRelayHash(address _from, uint256 qty); */
+    function generateRelayedTransferHash(address _from, address _to, uint256 qty, uint256 _fee, uint256 timeout) returns(bytes32){
+      /* emit generatedRelayHash(_from, qty); */
+      return keccak256(_from, _to, qty, _fee, timeout);
     }
 
     /*

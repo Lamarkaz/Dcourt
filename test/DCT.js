@@ -1,5 +1,9 @@
 var DCT = artifacts.require('./DCT.sol');
+var DCArbitration = artifacts.require('./DCArbitration.sol')
 var eth = require('../lib/ethereumjs-util');
+var currentProvider = web3.currentProvider;
+var web3lib = require('web3');
+var web4 = new web3lib(currentProvider);
 contract('DCT', function(accounts){
 
   /*
@@ -225,23 +229,127 @@ it("should increase vote after mint", function(){
   bounty()
 */
 
-it("should only allow users with valid signature from owner to mint", function(){
+  it("should only allow users with valid signature from owner to mint", function(){
+    return DCT.new().then(async function(contract){
+      var newOwner = {}
+      newOwner.key = eth.ripemd160("1", true); // "1" = nonce
+      newOwner.pub = eth.privateToAddress(newOwner.key);
+      await contract.transferOwnership(eth.bufferToHex(newOwner.pub), {from:accounts[0]});
+      var hash = await eth.toBuffer(await contract.generateBountyHash.call(accounts[1], 1, 1));
+      var sig = eth.ecsign(hash, newOwner.key);
+      var rpcsig = eth.toRpcSig(sig.v, sig.r, sig.s);
+      await contract.bounty(accounts[1], 1, 1, rpcsig, {from:accounts[1]});
+      assert.equal((await contract.balanceOf.call(accounts[1])).toNumber(), 1);
+      var hash = await eth.toBuffer(await contract.generateBountyHash.call(accounts[1], 1, 1));
+      var fakesig = eth.ecsign(hash, eth.ripemd160("2", true));
+      var fakerpcsig = eth.toRpcSig(fakesig.v, fakesig.r, fakesig.s);
+      await contract.bounty(accounts[1], 1, 1, fakerpcsig, {from:accounts[1]}).catch(()=>{});
+      assert.equal((await contract.balanceOf.call(accounts[1])).toNumber(), 1);
+    })
+  })
+/*
+  relayFee
+*/
+
+  // it("should not ...", function(){
+  //   return DCT.new().then(async function(contract){
+  //     var DCA = await DCArbitration.new(contract.address, 5,2,50,10,50);
+  //     await contract.transferOwnership(DCA.address);
+  //
+  //   });
+  // });
+/*
+  freeze
+*/
+it("should not transfer when frozen", function(){
   return DCT.new().then(async function(contract){
-    var newOwner = {}
-    newOwner.key = eth.ripemd160("1", true);
-    newOwner.pub = eth.privateToAddress(newOwner.key);
-    await contract.transferOwnership(eth.bufferToHex(newOwner.pub), {from:accounts[0]});
-    var hash = await eth.toBuffer(await contract.generateBountyHash.call(accounts[1], 1, 1));
-    var sig = eth.ecsign(hash, newOwner.key);
-    var rpcsig = eth.toRpcSig(sig.v, sig.r, sig.s);
-    await contract.bounty(accounts[1], 1, 1, rpcsig, {from:accounts[1]});
-    assert.equal((await contract.balanceOf.call(accounts[1])).toNumber(), 1);
-    var hash = await eth.toBuffer(await contract.generateBountyHash.call(accounts[1], 1, 1));
-    var fakesig = eth.ecsign(hash, eth.ripemd160("2", true));
-    var fakerpcsig = eth.toRpcSig(fakesig.v, fakesig.r, fakesig.s);
-    await contract.bounty(accounts[1], 1, 1, fakerpcsig, {from:accounts[1]}).catch(()=>{});
-    assert.equal((await contract.balanceOf.call(accounts[1])).toNumber(), 1);
+    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50);
+    await contract.unpause({from: accounts[0]});
+    await contract.mint(accounts[1],5, {from: accounts[0]});
+    await contract.transferOwnership(DCA.address, {from: accounts[0]});
+    await DCA.deposit({from: accounts[1]});
+    await contract.transfer(accounts[0], 1, {from: accounts[1]}).catch(()=>{});
+    assert.equal((await contract.balanceOf(accounts[1])).toNumber(), 5);
+    // await DCA.withdraw({from: accounts[1]});
+    // await contract.transfer(accounts[0], 1, {from: accounts[1]}).catch(()=>{});
+    // assert.equal((await contract.balanceOf(accounts[1])).toNumber(), 4);
+  })
+})
+/*
+  burn
+*/
+
+it("should change balance after burn", function(){
+  return DCT.new().then(async function(contract){
+    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50);
+    await contract.unpause({from: accounts[0]});
+    await contract.mint(accounts[1],5, {from: accounts[0]});
+    await contract.transferOwnership(DCA.address, {from: accounts[0]});
+    await DCA.burn(accounts[1], 4, {from: accounts[0]});
+    assert.equal((await contract.balanceOf(accounts[1])).toNumber(), 1);
+  })
+})
+it("should change total supply after burnAll", function(){
+  return DCT.new().then(async function(contract){
+    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50);
+    await contract.unpause({from: accounts[0]});
+    await contract.mint(accounts[1],5, {from: accounts[0]});
+    await contract.mint(accounts[2], 5, {from: accounts[0]});
+    await contract.transferOwnership(DCA.address, {from: accounts[0]});
+    await DCA.burn(accounts[1], 4, {from: accounts[0]});
+    assert.equal((await contract.totalSupply()).toNumber(), 6);
   })
 })
 
+/*
+  burnAll
+*/
+it("should have zero balance after burnAll", function(){
+  return DCT.new().then(async function(contract){
+    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50);
+    await contract.unpause({from: accounts[0]});
+    await contract.mint(accounts[1],5, {from: accounts[0]});
+    await contract.transferOwnership(DCA.address, {from: accounts[0]});
+    await DCA.burnAll(accounts[1], {from: accounts[0]});
+    assert.equal((await contract.balanceOf(accounts[1])).toNumber(), 0);
+  })
+})
+it("should change total supply after burnAll", function(){
+  return DCT.new().then(async function(contract){
+    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50);
+    await contract.unpause({from: accounts[0]});
+    await contract.mint(accounts[1],5, {from: accounts[0]});
+    await contract.mint(accounts[2], 5, {from: accounts[0]});
+    await contract.transferOwnership(DCA.address, {from: accounts[0]});
+    await DCA.burnAll(accounts[1], {from: accounts[0]});
+    assert.equal((await contract.totalSupply()).toNumber(), 5);
+  })
+})
+/*
+  relayTransfer
+*/
+// it("should --", function(){
+// return DCT.new().then(async function(contract){
+//   await contract.mint(accounts[1], 5, {from: accounts[0]});
+//   await contract.unpause();
+//
+//   // await contract.transferOwnership(eth.bufferToHex(newOwner.pub), {from:accounts[0]});
+//
+//
+//   var hash = await contract.generateRelayedTransferHash.call(accounts[1], accounts[2], 2, 1, 5, {from: accounts[1]});
+//   // var hash = await eth.toBuffer();
+//
+//
+//   var account_one = accounts[1];
+//   // var sig = web4.eth.sign(account_one, hash);
+//
+//   // var sig = web3.eth.sign(account_one, hash, function (err, result) { console.log(err, result); });
+//   console.log(sig);
+//   var rpcsig = await eth.toRpcSig(sig.v, sig.r, sig.s);
+//   await contract.relayTransfer(accounts[1], accounts[2], 2, 1, 5, rpcsig, {from: accounts[0]});
+//   // await contract.bounty(accounts[1], 1, 1, rpcsig, {from:accounts[1]});
+//   // assert.equal((await contract.balanceOf.call(accounts[1])).toNumber(), 1);
+//   assert.equal((await contract.balanceOf.call(accounts[1])).toNumber(), 2);
+// })
+// })
 })
