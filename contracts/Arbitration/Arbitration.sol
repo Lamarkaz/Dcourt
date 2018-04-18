@@ -43,6 +43,7 @@ contract DCArbitration {
         uint256 ayes;
         uint256 nayes;
         uint256 round;
+        uint256 trialDuration;
         bool decided;
         bool verdict;
     }
@@ -159,6 +160,7 @@ contract DCArbitration {
         filedCase.accuser = tx.origin;
         filedCase.defendant = _defendant;
         filedCase.block = block.number;
+        filedCase.trialDuration = clients[msg.sender].trialDuration;
         evidence storage _evidence = filedCase._evidence[0];
         _evidence.body = _statement;
         _evidence.author = tx.origin;
@@ -187,7 +189,9 @@ contract DCArbitration {
         require(jurors[msg.sender].activeCases == 0);
         DCToken.freeze(msg.sender, false);
     }
-
+    function getVoteWeight(uint256 _caseID) public pure returns(uint256){
+      return cases[_caseID].voteWeight;
+    }
     function generateHash(string nonce, bool decision) public pure returns(bytes32){
         uint8 dec;
         if(decision == true)
@@ -211,7 +215,7 @@ contract DCArbitration {
            cases[_caseID]._phase = phase.VOTING;
         }
         jurors[msg.sender].activeCases = jurors[msg.sender].activeCases.add(1);
-        return _caseID; //?
+        return _caseID;
     }
     function unlock(bool decision, string nonce, uint256 _caseID) onlyJuror public returns(bool){
         require(votes[msg.sender][_caseID].amount > 0);

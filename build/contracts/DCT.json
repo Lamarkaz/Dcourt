@@ -30,9 +30,9 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.18;\n\ncontract DCT {\n    function mint(address _to, uint256 _amount) public returns (bool);\n}\n",
-  "sourcePath": "/home/nour/Documents/Lamarkaz/Dcourt/contracts/Presale/DCTInterface.sol",
+  "sourcePath": "/home/ihab/Dcourt/contracts/Presale/DCTInterface.sol",
   "ast": {
-    "absolutePath": "/home/nour/Documents/Lamarkaz/Dcourt/contracts/Presale/DCTInterface.sol",
+    "absolutePath": "/home/ihab/Dcourt/contracts/Presale/DCTInterface.sol",
     "exportedSymbols": {
       "DCT": [
         1651
@@ -182,7 +182,7 @@
     "src": "0:114:4"
   },
   "legacyAST": {
-    "absolutePath": "/home/nour/Documents/Lamarkaz/Dcourt/contracts/Presale/DCTInterface.sol",
+    "absolutePath": "/home/ihab/Dcourt/contracts/Presale/DCTInterface.sol",
     "exportedSymbols": {
       "DCT": [
         1651
@@ -340,9 +340,9 @@
       "events": {},
       "links": {},
       "address": "0x345ca3e014aaf5dca488057592ee47305d9b3e10",
-      "transactionHash": "0x3a7b9a84b297ae4a39b2c1bb06914a99365b61800b07225c034702c848fc39c9"
+      "transactionHash": "0x869f73229b3a9ee7590979d94e2f7e281d698c1192a3d1e87a7ea21475aa4907"
     }
   },
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-04-16T22:26:29.915Z"
+  "updatedAt": "2018-04-18T19:43:11.041Z"
 }
