@@ -17,10 +17,10 @@
     "build:dist": "babel index.js --source-root ./ -d ./dist",
     "build:docs": "documentation build ./index.js --github --sort-order='alpha' -f md > ./docs/index.md"
   },
-  //"repository": {
-  //  "type": "git",
-  //  "url": "https://github.com/Lamarkaz/Dcourt.git"
-  //},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lamarkaz/Dcourt.git"
+  },
   "keywords": [
     "ethereum",
     "utilties"

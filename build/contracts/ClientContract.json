@@ -30,9 +30,9 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.18;\n\ncontract ClientContract{\n    function onVerdict(uint256, bool) public returns(bool); //Case ID, Decision.\n}\n",
-  "sourcePath": "/home/nour/Documents/Lamarkaz/Dcourt/contracts/Arbitration/ClientInterface.sol",
+  "sourcePath": "/home/ihab/Dcourt/contracts/Arbitration/ClientInterface.sol",
   "ast": {
-    "absolutePath": "/home/nour/Documents/Lamarkaz/Dcourt/contracts/Arbitration/ClientInterface.sol",
+    "absolutePath": "/home/ihab/Dcourt/contracts/Arbitration/ClientInterface.sol",
     "exportedSymbols": {
       "ClientContract": [
         1477
@@ -182,7 +182,7 @@
     "src": "0:134:1"
   },
   "legacyAST": {
-    "absolutePath": "/home/nour/Documents/Lamarkaz/Dcourt/contracts/Arbitration/ClientInterface.sol",
+    "absolutePath": "/home/ihab/Dcourt/contracts/Arbitration/ClientInterface.sol",
     "exportedSymbols": {
       "ClientContract": [
         1477
@@ -337,5 +337,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-04-16T22:26:29.900Z"
+  "updatedAt": "2018-04-18T19:43:11.024Z"
 }

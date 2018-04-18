@@ -193,9 +193,9 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.18;\n\ncontract DCTInterface {\n    function getOwner() public view returns(address);\n    mapping (address => uint256) public balances;\n    mapping (address => bool) public frozen;\n    function balanceOf(address _owner) public view returns (uint256 balance);\n    function mint(address _to, uint256 _amount) public returns (bool);\n    function relayFee(address _from, address _relay, uint256 _fee) public returns(bool);\n    function freeze(address _account, bool _value) public  returns (uint256);\n    function burn(address _account, uint256 _amount) public returns (uint256);\n    function burnAll(address _account) public returns(bool);\n}\n",
-  "sourcePath": "/home/nour/Documents/Lamarkaz/Dcourt/contracts/Arbitration/TokenInterface.sol",
+  "sourcePath": "/home/ihab/Dcourt/contracts/Arbitration/TokenInterface.sol",
   "ast": {
-    "absolutePath": "/home/nour/Documents/Lamarkaz/Dcourt/contracts/Arbitration/TokenInterface.sol",
+    "absolutePath": "/home/ihab/Dcourt/contracts/Arbitration/TokenInterface.sol",
     "exportedSymbols": {
       "DCTInterface": [
         1639
@@ -1010,7 +1010,7 @@
     "src": "0:657:3"
   },
   "legacyAST": {
-    "absolutePath": "/home/nour/Documents/Lamarkaz/Dcourt/contracts/Arbitration/TokenInterface.sol",
+    "absolutePath": "/home/ihab/Dcourt/contracts/Arbitration/TokenInterface.sol",
     "exportedSymbols": {
       "DCTInterface": [
         1639
@@ -1830,5 +1830,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-04-16T22:26:29.901Z"
+  "updatedAt": "2018-04-18T19:43:11.026Z"
 }
