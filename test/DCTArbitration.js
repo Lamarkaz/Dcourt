@@ -1,6 +1,6 @@
 var DCT = artifacts.require('./DCT.sol');
 var DCArbitration = artifacts.require('./DCArbitration.sol')
-var eth = require('../lib/ethereumjs-util');
+var eth = require('../libs/ethereumjs-util');
 var currentProvider = web3.currentProvider;
 var web3lib = require('web3');
 var web4 = new web3lib(currentProvider);
