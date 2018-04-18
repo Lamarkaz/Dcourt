@@ -11,7 +11,7 @@ More information about the functionality of the smart contracts is available on 
 * Bounty system
 * Pluggable dispute arbitration contract
 * [Relayed transactions](https://blog.lamarkaz.com/2018/03/01/relayed-transactions-a-solution/) implementation
-* Using safe practices from the [OpenZepplin](https://openzeppelin.org/) project.
+* Using safe practices from the [OpenZeppelin](https://openzeppelin.org/) project.
 * Mocha unit tests
 
 ## Authors
