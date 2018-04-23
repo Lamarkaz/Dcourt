@@ -16,6 +16,7 @@ More information about the functionality of the smart contracts and the Dcourt p
 
 ## Directories
 
+Name | Location
 --- | ---
 *Contracts* | [contracts/](contracts/)
 *Migrations* | [migrations/](contracts/)
