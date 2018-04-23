@@ -39,11 +39,11 @@ Inside the truffle development console, run:
 
 ## Directories
 
-Name | Location
+Description | Location
 --- | ---
 *Contracts* | [contracts/](/contracts/)
-*DCT Token Contracts* | [contracts/Token](/contracts/Token)
-*Dcourt Arbitration Contracts* | [contracts/Arbitration](/contracts/Arbitration)
+*DCT Token Contracts* | [contracts/Token](/contracts/Token/)
+*Dcourt Arbitration Contracts* | [contracts/Arbitration](/contracts/Arbitration/)
 *Migrations* | [migrations/](/contracts)
 *Tests* | [test/](/test)
 
