@@ -18,9 +18,9 @@ More information about the functionality of the smart contracts and the Dcourt p
 
 Name | Location
 --- | ---
-*Contracts* | [contracts/](contracts/)
-*Migrations* | [migrations/](contracts/)
-*Tests* | [test/](test/)
+*Contracts* | [contracts/](/contracts)
+*Migrations* | [migrations/](/contracts)
+*Tests* | [test/](/test)
 
 ## Authors
 
