@@ -1,7 +1,8 @@
-# Dcourt Smart Contracts
+# Dcourt Smart Contracts (WIP)
 
+Dcourt is a decentralized dispute arbitration 2nd-layer infrastructure based on the Ethereum platform that functions similar to a jury court.
 This truffle project contains the core Solidity smart contracts of the [Dcourt](https://dcourt.io) project.
-More information about the functionality of the smart contracts is available on the [Dcourt whitepaper](https://dcourt.io/whitepaper.pdf)
+More information about the functionality of the smart contracts and the Dcourt project is available on the [Dcourt whitepaper](https://dcourt.io/whitepaper.pdf)
 
 
 ## Features
@@ -13,6 +14,38 @@ More information about the functionality of the smart contracts is available on 
 * [Relayed transactions](https://blog.lamarkaz.com/2018/03/01/relayed-transactions-a-solution/) implementation
 * Using safe practices from the [OpenZeppelin](https://openzeppelin.org/) project.
 * Mocha unit tests
+
+## Development
+
+To set up your own development environment on an Ubuntu machine:
+
+1. Clone this repo
+`https://github.com/Lamarkaz/Dcourt & cd ./Dcourt`
+
+2. Install truffle
+`npm i -g truffle`
+
+3. Run truffle development console
+`truffle develop`
+
+4. Run migration scripts
+`migrate`
+
+## Tests
+
+Each Solidity contract is packaged with Mocha unit tests.
+Inside the truffle development console, run:
+`test`
+
+## Directories
+
+Description | Location
+--- | ---
+*Contracts* | [contracts/](/contracts/)
+*DCT Token Contracts* | [contracts/Token/](/contracts/Token/)
+*Dcourt Arbitration Contracts* | [contracts/Arbitration/](/contracts/Arbitration/)
+*Migrations* | [migrations/](/contracts)
+*Tests* | [test/](/test)
 
 ## Authors
 
