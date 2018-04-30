@@ -205,13 +205,13 @@ it("can claim the reward after case is finalized and round is over", function(){
 })
 it("can get penalized after case is finalized and round is over", function(){
     return DCT.new().then(async function(contract){
-      DCA = await DCArbitration.new(contract.address, 5,10,50,25,100);
+      DCA = await DCArbitration.new(contract.address, 5,10,5000000,25,100);
       await contract.unpause({from: accounts[0]});
-      await contract.mint(accounts[1], 50, {from: accounts  [0]});
-      await contract.mint(accounts[4], 50, {from: accounts  [0]});
-      await contract.mint(accounts[5], 50, {from: accounts  [0]});
-      await contract.mint(accounts[6], 50, {from: accounts  [0]});
-      await contract.mint(accounts[7], 50, {from: accounts  [0]});
+      await contract.mint(accounts[1], 5000000, {from: accounts  [0]});
+      await contract.mint(accounts[4], 5000000, {from: accounts  [0]});
+      await contract.mint(accounts[5], 5000000, {from: accounts  [0]});
+      await contract.mint(accounts[6], 5000000, {from: accounts  [0]});
+      await contract.mint(accounts[7], 5000000, {from: accounts  [0]});
       await contract.transferOwnership(DCA.address, {from: accounts[0]});
       var clientC = await client.new(DCA.address);
       await DCA.deposit({from: accounts[1]});
@@ -226,11 +226,11 @@ it("can get penalized after case is finalized and round is over", function(){
       var hash2 = await DCA.generateHash("nonce2", true, {from: accounts[5]});
       var hash4 = await DCA.generateHash("nonce4", false, {from: accounts[7]});
       await blockminer.mineBlocks(accounts[0], 10);
-      await DCA.vote(1, hash, 25, {from: accounts[1]}).catch();
-      await DCA.vote(1, hash1, 25, {from: accounts[4]}).catch();
-      await DCA.vote(1, hash2, 25, {from: accounts[5]}).catch();
+      await DCA.vote(1, hash, 2500000, {from: accounts[1]}).catch();
+      await DCA.vote(1, hash1, 2500000, {from: accounts[4]}).catch();
+      await DCA.vote(1, hash2, 2500000, {from: accounts[5]}).catch();
       // await DCA.vote(1, hash3, 25, {from: accounts[6]}).catch();
-      await DCA.vote(1, hash4, 25, {from: accounts[7]}).catch();
+      await DCA.vote(1, hash4, 2500000, {from: accounts[7]}).catch();
       // assert.equal((await DCA.getVoteWeight(1, {from: accounts[0]})).toNumber(),100);
       // await blockminer.mineBlocks(accounts[0], 1);
       await DCA.unlock(true, "nonce", 1, {from: accounts[1]});
@@ -238,8 +238,8 @@ it("can get penalized after case is finalized and round is over", function(){
       await DCA.unlock(true, "nonce2", 1, {from: accounts[5]});
       // // await DCA.unlock(true, "nonce3", 1, {from: accounts[6]});
       await DCA.unlock(false, "nonce4", 1, {from: accounts[7]});
-      assert.equal((await DCA.getV(true, 1)).toNumber(), 75);
-      assert.equal((await DCA.getV(false, 1)).toNumber(), 25);
+      assert.equal((await DCA.getV(true, 1)).toNumber(), 7500000);
+      assert.equal((await DCA.getV(false, 1)).toNumber(), 2500000);
       await blockminer.mineBlocks(accounts[0], 5);
       await DCA.finalize(1, {from: accounts[2]});
       assert.equal(await clientC.getVideoOwner(1), accounts[3]);
@@ -249,11 +249,11 @@ it("can get penalized after case is finalized and round is over", function(){
       await DCA.claimReward({from: accounts[5]});
       // await DCA.claimReward({from: accounts[6]});
       await DCA.claimReward({from: accounts[7]});
-      // assert.equal((await contract.balanceOf.call(accounts[1])).toNumber(), 66);
-      // assert.equal((await contract.balanceOf.call(accounts[4])).toNumber(), 66);
-      // assert.equal((await contract.balanceOf.call(accounts[5])).toNumber(), 66);
+      assert.equal((await contract.balanceOf.call(accounts[1])).toNumber(), 5000000);
+      assert.equal((await contract.balanceOf.call(accounts[4])).toNumber(), 5000000);
+      assert.equal((await contract.balanceOf.call(accounts[5])).toNumber(), 5000000);
       // assert.equal((await contract.balanceOf.call(accounts[6])).toNumber(), 62);
-      assert.equal((await contract.balanceOf.call(accounts[7])).toNumber(), 34);
+      assert.equal((await contract.balanceOf.call(accounts[7])).toNumber(), 5000000);
     })
 })
 })

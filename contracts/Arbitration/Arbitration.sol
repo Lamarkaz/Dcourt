@@ -268,6 +268,7 @@ contract DCArbitration {
          return verdict;
     }
     event rewardClaimed(bool decided, uint256 round, uint256 currentRound, uint256 test);
+    event loss(uint256 loss);
     function claimReward() public onlyJuror onlyWhenOwner returns(bool){ // optional iterations argument
         require(jurors[msg.sender].caseCount > 0); // activeCases >> caseCount
         uint256 NCases = jurors[msg.sender].caseCount;
@@ -278,26 +279,31 @@ contract DCArbitration {
         for(uint256 i=0; i < NCases; i++){
         //emit rewardClaimed(555);
             uint256 individualRR;
-              emit rewardClaimed(cases[jurors[msg.sender].cases[i]].decided, cases[jurors[msg.sender].cases[i]].round, currentRound, block.number.sub(genesisBlock));
+
             if(cases[jurors[msg.sender].cases[i]].decided == false ||  cases[jurors[msg.sender].cases[i]].round == currentRound) continue;
             // uint256 tokenShare = ;
             uint256 ten = 10**4;
             uint256 halvings = (cases[jurors[msg.sender].cases[i]].round / roundsPerHalving);
             individualRR = ((10**4)/2**halvings) * RoundReward;
             individualRR /= 10**4;
-
+            uint256 voterWeight = (votes[msg.sender][jurors[msg.sender].cases[i]].amount * 10**8) / cases[jurors[msg.sender].cases[i]].voteWeight;
           if(cases[jurors[msg.sender].cases[i]].verdict == votes[msg.sender][jurors[msg.sender].cases[i]].decision){
-                Claimed += int((votes[msg.sender][jurors[msg.sender].cases[i]].amount / cases[jurors[msg.sender].cases[i]].voteWeight ) * (individualRR/rounds[currentRound-1].caseCount));
-                //DCToken.mint(msg.sender, Claimed);
+              //  Claimed += int(((votes[msg.sender][jurors[msg.sender].cases[i]].amount / cases[jurors[msg.sender].cases[i]].voteWeight ) * (individualRR/rounds[currentRound-1].caseCount)));
+              Claimed += int((votes[msg.sender][jurors[msg.sender].cases[i]].amount/cases[jurors[msg.sender].cases[i]].voteWeight * rounds[currentRound-1].caseCount) * individualRR);
+              //DCToken.mint(msg.sender, Claimed);
             }else{ //75% threshold?
-               Claimed -= int((votes[msg.sender][jurors[msg.sender].cases[i]].amount / cases[jurors[msg.sender].cases[i]].voteWeight ) * (individualRR/rounds[currentRound-1].caseCount));
-            }
+            //Claimed -= int((voterWeight * (individualRR/rounds[currentRound-1].caseCount)));
+            //Claimed -= int((votes[msg.sender][jurors[msg.sender].cases[i]].amount * 10**10)/cases[jurors[msg.sender].cases[i]].voteWeight * rounds[currentRound-1].caseCount) * individualRR;
+            Claimed -= int((votes[msg.sender][jurors[msg.sender].cases[i]].amount/cases[jurors[msg.sender].cases[i]].voteWeight * rounds[currentRound-1].caseCount) * individualRR);
+            // ((Vweight*10**10/Tvotes*Nc) * RR
+          }
         }
         if(Claimed > 0 ){
             DCToken.mint(msg.sender, uint256(Claimed));
         }else if(Claimed < 0){
             DCToken.burn(msg.sender, uint256(Claimed));
         }
+
         //Remove cases from
         delete jurors[msg.sender].cases;
     }
