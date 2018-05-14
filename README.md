@@ -44,7 +44,7 @@ Description | Location
 *Contracts* | [contracts/](/contracts/)
 *DCT Token Contracts* | [contracts/Token/](/contracts/Token/)
 *Dcourt Arbitration Contracts* | [contracts/Arbitration/](/contracts/Arbitration/)
-*Migrations* | [migrations/](/contracts)
+*Migrations* | [migrations/](/migrations)
 *Tests* | [test/](/test)
 
 ## Authors
