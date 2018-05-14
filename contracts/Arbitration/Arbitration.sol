@@ -289,19 +289,24 @@ contract DCArbitration {
             uint256 voterWeight = (votes[msg.sender][jurors[msg.sender].cases[i]].amount * 10**8) / cases[jurors[msg.sender].cases[i]].voteWeight;
           if(cases[jurors[msg.sender].cases[i]].verdict == votes[msg.sender][jurors[msg.sender].cases[i]].decision){
               //  Claimed += int(((votes[msg.sender][jurors[msg.sender].cases[i]].amount / cases[jurors[msg.sender].cases[i]].voteWeight ) * (individualRR/rounds[currentRound-1].caseCount)));
-              Claimed += int((votes[msg.sender][jurors[msg.sender].cases[i]].amount/cases[jurors[msg.sender].cases[i]].voteWeight * rounds[currentRound-1].caseCount) * individualRR);
+              Claimed += int((((((votes[msg.sender][jurors[msg.sender].cases[i]].amount)*10**8 ) /cases[jurors[msg.sender].cases[i]].voteWeight * rounds[currentRound-1].caseCount))/10**7 * individualRR)/10);
               //DCToken.mint(msg.sender, Claimed);
             }else{ //75% threshold?
             //Claimed -= int((voterWeight * (individualRR/rounds[currentRound-1].caseCount)));
             //Claimed -= int((votes[msg.sender][jurors[msg.sender].cases[i]].amount * 10**10)/cases[jurors[msg.sender].cases[i]].voteWeight * rounds[currentRound-1].caseCount) * individualRR;
-            Claimed -= int((votes[msg.sender][jurors[msg.sender].cases[i]].amount/cases[jurors[msg.sender].cases[i]].voteWeight * rounds[currentRound-1].caseCount) * individualRR);
+            //Claimed -=  int(((((votes[msg.sender][jurors[msg.sender].cases[i]].amount * 10)/(cases[jurors[msg.sender].cases[i]].voteWeight * rounds[currentRound-1].caseCount))) * individualRR));
+            Claimed -= int((((((votes[msg.sender][jurors[msg.sender].cases[i]].amount)*10**8 ) /cases[jurors[msg.sender].cases[i]].voteWeight * rounds[currentRound-1].caseCount))/10**7 * individualRR)/10);
             // ((Vweight*10**10/Tvotes*Nc) * RR
           }
         }
-        if(Claimed > 0 ){
+        if(Claimed > 0){
             DCToken.mint(msg.sender, uint256(Claimed));
         }else if(Claimed < 0){
-            DCToken.burn(msg.sender, uint256(Claimed));
+            if(uint256(Claimed) < DCToken.balanceOf(msg.sender) ){
+              DCToken.burn(msg.sender, uint256(Claimed));
+            }else{
+              DCToken.burnAll(msg.sender);
+            }
         }
 
         //Remove cases from

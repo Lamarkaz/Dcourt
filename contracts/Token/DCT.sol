@@ -85,8 +85,8 @@ contract DCT is ERC20, Pausable {
     event Mint(address indexed to, uint256 amount);
 
     function mint(address _to, uint256 _amount) public returns (bool) {
-    require(msg.sender == owner || msg.sender == saleContract);
-    require(_mint(_to, _amount));
+      require(msg.sender == owner || msg.sender == saleContract);
+      require(_mint(_to, _amount));
     }
 
     function _mint(address _to, uint256 _amount) internal returns (bool) {
@@ -104,7 +104,7 @@ contract DCT is ERC20, Pausable {
 
     mapping (address => uint256) public owners;
     mapping (address => address) public voters;
-    event Signal(address _voter, address _owner, uint256 _amount);
+    event Signal(address _voter, address indexed _owner, uint256 _amount);
     event ElectedOwner(address _owner, uint256 _votes);
 
     function signal(address _owner) whenNotPaused public {
@@ -180,9 +180,10 @@ contract DCT is ERC20, Pausable {
     }
 
     mapping (address => bool) public frozen;
-
+    event Frozen(address indexed addr, bool _status);
     function freeze(address _account, bool _value) public onlyOwnerContract returns (uint256) {
         frozen[_account] = _value;
+        emit Frozen(_account, _value);
         return balances[_account];
     }
 
