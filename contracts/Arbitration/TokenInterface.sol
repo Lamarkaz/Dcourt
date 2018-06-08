@@ -10,4 +10,5 @@ contract DCTInterface {
     function freeze(address _account, bool _value) public  returns (uint256);
     function burn(address _account, uint256 _amount) public returns (uint256);
     function burnAll(address _account) public returns(bool);
+    function totalSupply() public view returns (uint256);
 }

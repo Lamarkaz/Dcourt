@@ -263,7 +263,7 @@ it("should increase vote after mint", function(){
 */
 it("should not transfer when frozen", function(){
   return DCT.new().then(async function(contract){
-    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50);
+    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50,0,0,21);
     await contract.unpause({from: accounts[0]});
     await contract.mint(accounts[1],5, {from: accounts[0]});
     await contract.transferOwnership(DCA.address, {from: accounts[0]});
@@ -281,7 +281,7 @@ it("should not transfer when frozen", function(){
 
 it("should change balance after burn", function(){
   return DCT.new().then(async function(contract){
-    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50);
+    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50,0,0,21);
     await contract.unpause({from: accounts[0]});
     await contract.mint(accounts[1],5, {from: accounts[0]});
     await contract.transferOwnership(DCA.address, {from: accounts[0]});
@@ -291,7 +291,7 @@ it("should change balance after burn", function(){
 })
 it("should change total supply after burnAll", function(){
   return DCT.new().then(async function(contract){
-    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50);
+    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50,0,0,21);
     await contract.unpause({from: accounts[0]});
     await contract.mint(accounts[1],5, {from: accounts[0]});
     await contract.mint(accounts[2], 5, {from: accounts[0]});
@@ -306,7 +306,7 @@ it("should change total supply after burnAll", function(){
 */
 it("should have zero balance after burnAll", function(){
   return DCT.new().then(async function(contract){
-    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50);
+    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50,0,0,21);
     await contract.unpause({from: accounts[0]});
     await contract.mint(accounts[1],5, {from: accounts[0]});
     await contract.transferOwnership(DCA.address, {from: accounts[0]});
@@ -316,7 +316,7 @@ it("should have zero balance after burnAll", function(){
 })
 it("should change total supply after burnAll", function(){
   return DCT.new().then(async function(contract){
-    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50);
+    var DCA = await DCArbitration.new(contract.address, 0,0,50,1,50,0,0,21);
     await contract.unpause({from: accounts[0]});
     await contract.mint(accounts[1],5, {from: accounts[0]});
     await contract.mint(accounts[2], 5, {from: accounts[0]});

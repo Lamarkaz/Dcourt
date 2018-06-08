@@ -3,7 +3,10 @@ pragma solidity ^0.4.18;
 import "./SafeMath.sol";
 import "./ERC20.sol";
 import "./OwnablePausable.sol";
-
+/**
+@title DCourt Arbitration contract
+@author Ihab McShea Nour Haridy
+*/
 contract DCT is ERC20, Pausable {
     using SafeMath for uint256;
 
@@ -27,7 +30,15 @@ contract DCT is ERC20, Pausable {
     function getOwner() public view returns(address){
         return owner;
     }
-    function transfer(address _to, uint256 _value) public whenNotPaused returns (bool) {
+    /**
+    @notice Transfer from the current address to a different address other than the zero address.
+    @param _to the address of the receiver
+    @param _value the amount sent
+    @return {
+      "transferred": "if transferred"
+    }
+    */
+    function transfer(address _to, uint256 _value) public whenNotPaused returns (bool transferred) {
         require(frozen[msg.sender] == false);
         require(_to != address(0));
         require(_value <= balances[msg.sender]);
@@ -38,8 +49,16 @@ contract DCT is ERC20, Pausable {
         emit Transfer(msg.sender, _to, _value);
         return true;
     }
-
-    function transferFrom(address _from, address _to, uint256 _value) public whenNotPaused returns (bool) {
+    /**
+    @notice Transfer an amount of money approved by the first account to another to a thrid account
+    @param _from the address of the first address
+    @param _to the adddress of the receiver
+    @param _value the amount sent
+    @return {
+      "transferred": "if transferred"
+    }
+    */
+    function transferFrom(address _from, address _to, uint256 _value) public whenNotPaused returns (bool transferred) {
         require(frozen[_from] == false);
         require(_to != address(0));
         require(_value <= balances[_from]);
@@ -56,7 +75,14 @@ contract DCT is ERC20, Pausable {
     function balanceOf(address _owner) public view returns (uint256 balance) {
         return balances[_owner];
     }
-
+    /**
+    @notice Approve a specific amount of money to a second account to spend
+    @param _spender the address of the second account
+    @param _value the value allocated (approved)
+    @return {
+      "registered": "if registered"
+    }
+    */
     function approve(address _spender, uint256 _value) public whenNotPaused returns (bool) {
         allowed[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
@@ -72,21 +98,33 @@ contract DCT is ERC20, Pausable {
     */
 
     address public saleContract;
-
+    /**
+    @notice Change/Set the sale contract. Only in pre-sale period.
+    @param _contract the address of the new contract
+    */
     function setSaleContract(address _contract) public onlyOwner {
         require(isContract(_contract));
         saleContract = _contract;
     }
-
+    /**
+    @notice Remove the sale contract. Called when the presale is over.
+    */
     function removeSaleContract() public onlyOwner {
         saleContract = address(0);
     }
 
     event Mint(address indexed to, uint256 amount);
-
-    function mint(address _to, uint256 _amount) public returns (bool) {
-    require(msg.sender == owner || msg.sender == saleContract);
-    require(_mint(_to, _amount));
+    /**
+    @notice Mint new tokens to a specific account.
+    @param _to the address of the account
+    @param _amount the amount of tokens to be minted
+    @return {
+      "minted": "if minted"
+    }
+    */
+    function mint(address _to, uint256 _amount) public returns (bool minted) {
+      require(msg.sender == owner || msg.sender == saleContract);
+      require(_mint(_to, _amount));
     }
 
     function _mint(address _to, uint256 _amount) internal returns (bool) {
@@ -104,10 +142,16 @@ contract DCT is ERC20, Pausable {
 
     mapping (address => uint256) public owners;
     mapping (address => address) public voters;
-    event Signal(address _voter, address _owner, uint256 _amount);
+    event Signal(address _voter, address indexed _owner, uint256 _amount);
     event ElectedOwner(address _owner, uint256 _votes);
-
-    function signal(address _owner) whenNotPaused public {
+    /**
+    @notice Vote for a smart contract to be the new owner of Dcourt. The owner change to whomever has more than 50% of all votes.
+    @param _owner the address of the owner contract
+    @return {
+      "signaled": "if signaled"
+    }
+    */
+    function signal(address _owner) whenNotPaused public returns(bool signaled){
         require(isContract(_owner));
         require(balances[msg.sender] > 0);
         require(_owner != address(0) && _owner != owner);
@@ -123,13 +167,18 @@ contract DCT is ERC20, Pausable {
             owner = _owner;
             emit ElectedOwner(_owner, owners[_owner]);
         }
+        return true;
     }
 
     function ownerPercentage(address _owner) public view returns (uint256) {
       if(owners[_owner] == totalSupply) return 100;
       return (owners[_owner].div(totalSupply)).mul(100);
     }
-
+    /**
+    @notice Decrease the vote value of a voter. Only called within the DCT contract.
+    @param _voter the address of the voter
+    @param _amount the amount of tokens to be deducted.
+    */
     function decreaseVote(address _voter, uint256 _amount) private {
         if(voters[_voter] != address(0)){
             emit Signal(_voter, voters[_voter], balances[msg.sender]);
@@ -137,7 +186,11 @@ contract DCT is ERC20, Pausable {
         }
 
     }
-
+    /**
+    @notice Increase the vote value of a voter. Only called within the DCT contract.
+    @param _voter the address of the voter
+    @param _amount the amount of tokens to be added.
+    */
     function increaseVote(address _voter, uint256 _amount) private {
         if(voters[_voter] != address(0)){
             emit Signal(_voter, voters[_voter], balances[msg.sender]);
@@ -180,9 +233,10 @@ contract DCT is ERC20, Pausable {
     }
 
     mapping (address => bool) public frozen;
-
+    event Frozen(address indexed addr, bool _status);
     function freeze(address _account, bool _value) public onlyOwnerContract returns (uint256) {
         frozen[_account] = _value;
+        emit Frozen(_account, _value);
         return balances[_account];
     }
 
