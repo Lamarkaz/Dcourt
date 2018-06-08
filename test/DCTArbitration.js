@@ -211,7 +211,7 @@ it("can get penalized after case is finalized and round is over", function(){
       await contract.mint(accounts[4], 50, {from: accounts  [0]});
       await contract.mint(accounts[5], 50, {from: accounts  [0]});
       await contract.mint(accounts[6], 50, {from: accounts  [0]});
-      await contract.mint(accounts[7], 50, {from: accounts  [0]});
+      await contract.mint(accounts[ 7], 50, {from: accounts  [0]});
       await contract.transferOwnership(DCA.address, {from: accounts[0]});
       var clientC = await client.new(DCA.address);
       await DCA.deposit({from: accounts[1]});
