@@ -42,11 +42,11 @@ contract DCArbitration {
     }
     mapping(address => uint256) public delegates;
     mapping(address => address) public voters;
-    mapping(uint8 => address) public witnessRank;
-    mapping (uint8 => Witness) public witnesses;
+    mapping (uint => Witness) public witnesses;
     mapping(uint256 => mapping(uint256 => bool)) witnessVote;
     mapping(uint256 => spamReport) reportedCases;
-    mapping (address => uint8) public witnessRanks;
+    mapping(uint => uint) reportVotes;
+    mapping (address => uint) public witnessRanks;
     /*
         structs
     */
@@ -235,8 +235,8 @@ contract DCArbitration {
 
     }
     function unfreezeCollateral(uint256 _caseID){
-     /*require(block.number > cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod + unlockingPeriod + challengingPeriod && cases[_caseID].spam == false);
-      DCToken.mint(cases[_caseID].accuser, (cases[_caseID].collateral/2));*/
+     require(block.number > cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod + unlockingPeriod + challengingPeriod && cases[_caseID].spam == false);
+      DCToken.mint(cases[_caseID].accuser, (cases[_caseID].collateral/2));
     }
     event Delegation(address indexed voter, address indexed delegate, uint256 balance);
     function increaseVote(address _voter, uint256 _amount){
@@ -250,15 +250,15 @@ contract DCArbitration {
     function eligibleForWitness(address _delegate) public view returns (bool) {
        return delegates[_delegate] > delegates[witnesses[witnessCount].addr];
     }
-    event Stepdown(address indexed _witness, string _name, uint8 rank);
-    event NewWitness(address indexed _witness, string _name, uint8 rank);
+    event Stepdown(address indexed _witness, string _name, uint rank);
+    event NewWitness(address indexed _witness, string _name, uint rank);
     function witnessStepdown() public onlyWitness  returns (bool) {
-     uint8 rank = witnessRanks[msg.sender];
+     uint rank = witnessRanks[msg.sender];
      Witness memory thisWitness = witnesses[rank];
      delete witnesses[rank];
      witnessRanks[msg.sender] = 0;
      if(rank == witnessCount) return true; // If this the last rank, skipping the next loop
-     for (uint8 i = rank+1; i < witnessCount+1; i++){ // Move up each witness of a lower rank
+     for (uint i = rank+1; i < witnessCount+1; i++){ // Move up each witness of a lower rank
          witnessRanks[witnesses[i-1].addr] = witnessRanks[witnesses[i].addr];
          witnesses[i-1] = witnesses[i];
      }
@@ -271,19 +271,31 @@ contract DCArbitration {
      function becomeWitness(string _name) public returns (bool) {
       uint256 weight = delegates[msg.sender];
       require(weight > 0 && ( witnessRanks[msg.sender] > 21 || witnessRanks[msg.sender] ==0));
-      uint8 rank;
-      uint8 i =0;
-      if(witnessCount > 0){
-        for(i = witnessCount; i>=0; i++){
-/*          uint256 witnessWeight = delegates[witnesses[i].addr];
-          if(weight < witnessWeight){
-            continue;
-          }else{
-        //    if(i == )
-          } */
+      uint rank;
+      if(witnessCount == 0 ){
+        rank = 1;
+      }else{
+        for (uint i = witnessCount; i > 0 ; i--){ // iterate on the witnesses from the lowest to highest rank to save as much gas as possible. Loop is bounded by witnessCount
+            // if(witnesses[i].addr == msg.sender) break; // if message sender is already this witness, throw
+            address witnessAddr = witnesses[i].addr;
+           uint256 witnessWeight = delegates[witnessAddr];
+            if(witnessWeight == 0 && i != 1) continue; //if there is no delegate at this rank and this is not the highest rank then skip this iteration
+            if(witnessWeight > weight) break; // if this witness has a higher weight than message sender, break the loop
+          if(i == maxWitnesses){  // if this is the lowest witness rank, remove this delegate from witnesses
+               witnessRanks[witnessAddr] = 0;
+               delete witnesses[i];
+            }else{
+                witnesses[i+1] = witnesses[i]; // Move this witness down 1 rank
+                witnessRanks[witnesses[i+1].addr] = i;
+            }
+            rank = i;
         }
       }
+
       require(rank > 0); // Require that message sender has a rank after the loop
+      if(rank > 0 && witnessCount < 21){
+        witnessCount +=1;
+      }
       witnessRanks[msg.sender] = rank;
       Witness storage newWitness = witnesses[rank];
       newWitness.name = _name;
@@ -307,18 +319,23 @@ contract DCArbitration {
        if(delegates[_delegate] == DCToken.totalSupply()) return 100;
        return (delegates[_delegate].div(DCToken.totalSupply())).mul(100);
     }
+    function getRanking(address account) public view returns(uint){
+        return witnessRanks[account];
+    }
     function decideReport(uint256 _caseID){
-
+      uint casePeriod = cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod + unlockingPeriod;
+      //require(witnessRanks[msg.sender] > 0 && witnessRanks[msg.sender] < 22);
+      require((block.number > casePeriod) && (block.number < casePeriod + challengingPeriod));
+      witnessVote[witnessRanks[msg.sender]][_caseID] = true;
+      reportVotes[_caseID] = reportVotes[_caseID].add(1);
+      if(reportVotes[_caseID] > (witnessCount/2)){
+        cases[_caseID].spam = true;
+      }
     }
 
     event Reported(uint256 _caseID, address reporter);
     function reportCase(uint256 _caseID) public returns(bool reported){
-        require(reportedCases[_caseID].accuser == address(0));
-        spamReport storage reportedCase = reportedCases[_caseID];
-        reportedCase.submitter = msg.sender;
-        reportedCase.caseID = _caseID;
-        reportedCase.accuser =  cases[caseCounter].accuser;
-        emit Reported(reportedCase.caseID, reportedCase.submitter);
+
         return true;
     }
 

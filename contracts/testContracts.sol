@@ -18,7 +18,7 @@ contract client{
   function client(address _DCourtAddress) public{
     DArbitration = ClientContract(_DCourtAddress);
     DCourtAddress = _DCourtAddress;
-    DArbitration.register(0x96a582e15fcf669f0506accd5372edb3e9c3dc26a341ec60200d701fc03d16c1, 10, "whatever");
+    DArbitration.register(0x96a582e15fcf669f0506accd5372edb3e9c3dc26a341ec60200d701fc03d16c1, 11, "whatever");
   }
   modifier onlyDCourt{
     require(msg.sender == DCourtAddress );
