@@ -5,9 +5,9 @@ import "./ClientInterface.sol";
 import "./SafeMath.sol";
 
 contract ClientContract{
-    function register(bytes32 _ToA, uint256 _trialDuration, string _URL) public   returns(bool);
+    function register(bytes32 _ToA, string _URL) public   returns(bool);
 
-    function fileCase(address _defendant, string _statement, string _title) public  returns(uint256);
+    function fileCase(address _defendant, uint256 trialDuration, string _statement, string _title) public  returns(uint256);
 
     function deposit()  public;
 

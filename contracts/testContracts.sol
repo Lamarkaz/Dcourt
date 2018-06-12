@@ -18,7 +18,7 @@ contract client{
   function client(address _DCourtAddress) public{
     DArbitration = ClientContract(_DCourtAddress);
     DCourtAddress = _DCourtAddress;
-    DArbitration.register(0x96a582e15fcf669f0506accd5372edb3e9c3dc26a341ec60200d701fc03d16c1, 11, "whatever");
+    DArbitration.register(0x96a582e15fcf669f0506accd5372edb3e9c3dc26a341ec60200d701fc03d16c1, "whatever");
   }
   modifier onlyDCourt{
     require(msg.sender == DCourtAddress );
@@ -36,7 +36,7 @@ contract client{
     videos[id].title = _title;
   }
   function claimVideo(uint256 videoID){
-      uint256 caseID = DArbitration.fileCase(videos[videoID].creator, "bla", "Ownership claim");
+      uint256 caseID = DArbitration.fileCase(videos[videoID].creator, 11, "bla", "Ownership claim");
       cases[caseID].accuser = msg.sender;
       cases[caseID].defendant = videos[videoID].creator;
       cases[caseID].title = "bla";

@@ -150,7 +150,8 @@ contract DCArbitration {
     /*
         events
     */
-    event Registration(address indexed addr, bytes32 ToA, uint256 trialDuration, string URL);
+
+    event Registration(address indexed addr, bytes32 ToA, string URL);
     event newCase(address accuser,
         address defendant,
         address client,
@@ -181,19 +182,16 @@ contract DCArbitration {
     @notice Register a decentralized application on the Dcourt system, called by the smart contract of the decentralized application.
     @dev You must call this function from your dApp smart contract in order to be able to build it on top of Dcourt.
     @param _ToA the hash of terms of agreement
-    @param _trialDuration the trial duration that cases of the dApp on the DCourt system. MUST be at least the minimum trial duration of the global Dcourt trial duration
     @param _URL the address of the dApp.
     @return {
       "registered": "if registered"
     }
     */
-    function register(bytes32 _ToA,  uint256 _trialDuration, string _URL) public   onlyWhenOwner returns(bool registered){
-        require(_trialDuration >= minTrialPeriod);
+    function register(bytes32 _ToA, string _URL) public   onlyWhenOwner returns(bool registered){
         require(clients[msg.sender].trialDuration == 0);
         clients[msg.sender].ToA = _ToA;
-        clients[msg.sender].trialDuration = _trialDuration;
         clients[msg.sender].URL = _URL;
-        emit Registration(msg.sender, _ToA, _trialDuration, _URL);
+        emit Registration(msg.sender, _ToA, _URL);
         return true;
     }
     event Filed(address indexed _accuser, address indexed _defendant, string _statement, string _title);
@@ -203,19 +201,20 @@ contract DCArbitration {
     @param _defendant the address of the defendant
     @param _statement the opening statement of the case, also considered the first body of evidence
     @param _title the title of the case. should be hard-coded in your contract.
+    @param trialDuration the duration in which case parties can submit evidence, should be at least as long as the global duration
     @return {
       "_caseID": "the ID of the filed case"
     }
     */
-    function fileCase(address _defendant, string _statement, string _title) public  returns(uint256 _caseID){
-        require(clients[msg.sender].trialDuration != 0);
+    function fileCase(address _defendant, uint256 trialDuration, string _statement, string _title) public  returns(uint256 _caseID){
+        require(trialDuration >= minTrialPeriod);
         caseCounter++;
         Case storage filedCase = cases[caseCounter];
         filedCase.client = msg.sender;
         filedCase.accuser = tx.origin;
         filedCase.defendant = _defendant;
         filedCase.block = block.number;
-        filedCase.trialDuration = clients[msg.sender].trialDuration;
+        filedCase.trialDuration = trialDuration;
         //  evidence storage _evidence = filedCase._evidence[0];
         //  _evidence.body = _statement;
         //  _evidence.author = tx.origin;
@@ -396,7 +395,7 @@ contract DCArbitration {
     }
     */
     function vote(uint256 _caseID, bytes32 hash, uint256 _amount) onlyJuror onlyWhenOwner public returns(bool voted){
-        require((block.number >= cases[_caseID].block + clients[cases[_caseID].client].trialDuration) && block.number < cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod);
+        require((block.number >= cases[_caseID].block + cases[_caseID].trialDuration) && block.number < cases[_caseID].block + cases[_caseID].trialDuration + votingPeriod);
         require(votes[msg.sender][_caseID].amount == 0);
         require(jurors[msg.sender].remaining.sub(_amount) >= 0 );
         jurors[msg.sender].remaining = jurors[msg.sender].remaining.sub(_amount);
@@ -429,7 +428,7 @@ contract DCArbitration {
     */
     function unlock(bool decision, string nonce, uint256 _caseID) onlyJuror public returns(bool unlocked){
         require(votes[msg.sender][_caseID].amount > 0);
-        require((block.number >= cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod) && (block.number < cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod + unlockingPeriod));
+        require((block.number >= cases[_caseID].block + cases[_caseID].trialDuration + votingPeriod) && (block.number < cases[_caseID].block + cases[_caseID].trialDuration + votingPeriod + unlockingPeriod));
         require(votes[msg.sender][_caseID].unlocked == false);
         uint8 dec;
         if(decision == true){
@@ -460,7 +459,7 @@ contract DCArbitration {
     }
     */
     function finalize(uint256 _caseID) public onlyWhenOwner returns(bool finalized){
-         require(block.number > cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod + unlockingPeriod);
+         require(block.number > cases[_caseID].block + cases[_caseID].trialDuration + votingPeriod + unlockingPeriod);
          require(cases[_caseID].decided == false);
          bool verdict = cases[_caseID].ayes > cases[_caseID].nayes;
          ClientContract cc = ClientContract(cases[_caseID].client);
@@ -534,7 +533,7 @@ contract DCArbitration {
     */
     function addEvidence(uint256 _caseID, string _body) public onlyWhenOwner onlyCaseParty(_caseID) returns (bool added){
         require(cases[_caseID].client != address(0));
-        require(block.number < cases[_caseID].block + clients[cases[_caseID].client].trialDuration);
+        require(block.number < cases[_caseID].block + cases[_caseID].trialDuration);
         cases[_caseID]._evidence.length+=1;
         evidence storage _evidence = cases[_caseID]._evidence[cases[_caseID]._evidence.length];
         _evidence.body = _body;

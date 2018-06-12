@@ -262,8 +262,8 @@ contract DCT is ERC20, Pausable {
 
     mapping (bytes32 => bool) public relayed;
     function relayTransfer(address _from, address _to, uint256 _value, uint256 _fee, uint256 _timeout, bytes sig) public whenNotPaused returns (bool) {
-        /* require(frozen[_from] == false);
-        require(balances[_from] >= (_value + _fee) && now < _timeout); */
+        require(frozen[_from] == false);
+        require(balances[_from] >= (_value + _fee) && now < _timeout);
         bytes32 hash = generateRelayedTransferHash (_from, _to, _value, _fee, _timeout);
         require(relayed[hash] != true);
         require(recover(hash, sig) == _from);
