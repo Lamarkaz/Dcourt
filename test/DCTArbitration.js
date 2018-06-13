@@ -260,7 +260,7 @@ it("can get penalized after case is finalized and round is over", function(){
 })
 it("can report cases", function(){
     return DCT.new().then(async function(contract){
-      DCA = await DCArbitration.new(contract.address, 5,10,5000,25,100,100,5,21);
+      DCA = await DCArbitration.new(contract.address, 5,10,5000,25,100,100,10,21);
       await contract.unpause({from: accounts[0]});
       await contract.mint(accounts[1], 50, {from: accounts  [0]});
       await contract.mint(accounts[4], 50, {from: accounts  [0]});
@@ -298,6 +298,7 @@ it("can report cases", function(){
       await DCA.vote(1, hash4, 25, {from: accounts[7]}).catch();
       // assert.equal((await DCA.getVoteWeight(1, {from: accounts[0]})).toNumber(),100);
       // await blockminer.mineBlocks(accounts[0], 1);
+      await blockminer.mineBlocks(accounts[0], 1);
       await DCA.unlock(true, "nonce", 1, {from: accounts[1]});
       await DCA.unlock(true, "nonce1", 1, {from: accounts[4]});
       await DCA.unlock(true, "nonce2", 1, {from: accounts[5]});
@@ -308,12 +309,9 @@ it("can report cases", function(){
       await blockminer.mineBlocks(accounts[0], 5);
       await DCA.finalize(1, {from: accounts[2]});
       assert.equal(await clientC.getVideoOwner(1), accounts[3]);
-      await DCA.getRanking(accounts[10], {from: accounts[9]}).then(function(err, res){
-        console.log("ranking:", res);
-      });
-
-      await DCA.decideReport(1, {from:accounts[0]});
-      // await blockminer.mineBlocks(accounts[0], 5);
+      await blockminer.mineBlocks(accounts[0], 1);
+      await DCA.decideReport(1, {from:accounts[10]});
+      await blockminer.mineBlocks(accounts[0], 4);
 
       await DCA.claimReward({from: accounts[1]});
       await DCA.claimReward({from: accounts[4]});
@@ -322,6 +320,7 @@ it("can report cases", function(){
       receipt = await DCA.claimReward({from: accounts[7]});
       // const gasUsed = receipt.receipt.gasUsed;
       // console.log(`ClaimReward GasUsed: ${receipt.receipt.gasUsed}`);
+      await blockminer.mineBlocks(accounts[0], 10);
       assert.equal((await contract.balanceOf.call(accounts[1])).toNumber(), 50);
       assert.equal((await contract.balanceOf.call(accounts[4])).toNumber(), 50);
       assert.equal((await contract.balanceOf.call(accounts[5])).toNumber(), 50);

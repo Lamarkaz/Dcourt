@@ -322,8 +322,8 @@ contract DCArbitration {
         return witnessRanks[account];
     }
     function decideReport(uint256 _caseID){
-      uint casePeriod = cases[_caseID].block + clients[cases[_caseID].client].trialDuration + votingPeriod + unlockingPeriod;
-      //require(witnessRanks[msg.sender] > 0 && witnessRanks[msg.sender] < 22);
+      uint casePeriod = cases[_caseID].block + cases[_caseID].trialDuration + votingPeriod + unlockingPeriod;
+      require(witnessRanks[msg.sender] > 0 && witnessRanks[msg.sender] < 22);
       require((block.number > casePeriod) && (block.number < casePeriod + challengingPeriod));
       witnessVote[witnessRanks[msg.sender]][_caseID] = true;
       reportVotes[_caseID] = reportVotes[_caseID].add(1);
@@ -334,7 +334,12 @@ contract DCArbitration {
 
     event Reported(uint256 _caseID, address reporter);
     function reportCase(uint256 _caseID) public returns(bool reported){
-
+      require(reportedCases[_caseID].accuser == address(0));
+      spamReport storage reportedCase = reportedCases[_caseID];
+      reportedCase.submitter = msg.sender;
+      reportedCase.caseID = _caseID;
+      reportedCase.accuser =  cases[caseCounter].accuser;
+      emit Reported(reportedCase.caseID, reportedCase.submitter);
         return true;
     }
 
@@ -520,7 +525,7 @@ contract DCArbitration {
             }
         }
 
-        //Remove cases from
+        //Remove the juror's cases in the past round
         delete jurors[msg.sender].cases;
     }
     /**
