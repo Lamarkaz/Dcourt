@@ -36,8 +36,10 @@ To set up your own development environment on an Ubuntu machine:
 Each Solidity contract is packaged with Mocha unit tests.
 Inside the truffle development console, run:
 `test`
+
 For a better test experience, we advise you to use Ganache, update truffle-config.js file accordingly then simply run:
-'truffle test'
+`truffle test`
+
 ## Directories
 
 Description | Location
@@ -51,4 +53,4 @@ Description | Location
 
 ## Authors
 
-[Nour Haridy](https://github.com/nourharidy) & [Ihab McShea](https://github.com/ihabshea)
+[Ihab McShea](https://github.com/ihabshea) & [Nour Haridy](https://github.com/nourharidy)
