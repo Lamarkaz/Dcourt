@@ -33,6 +33,10 @@ To set up your own development environment on an Ubuntu machine:
 
 ## Tests
 
+<aside class="warning">
+Tests are deprecated. To be updated soon.
+</aside>
+
 Each Solidity contract is packaged with Mocha unit tests.
 Inside the truffle development console, run:
 `test`
