@@ -52,5 +52,4 @@ Description | Location
 *Tests* | [test/](/test)
 
 ## Authors
-
-[Ihab McShea](https://github.com/ihabshea) & [Nour Haridy](https://github.com/nourharidy)
+[Ihab McShea](https://github.com/ihabshea) & [Nour Haridy](https://github.com/nourharidy) 
