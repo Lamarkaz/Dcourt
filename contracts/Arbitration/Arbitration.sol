@@ -30,9 +30,12 @@ contract DCArbitration {
     uint256 genesisBlock;
     uint8 witnessCount;
     uint8 maxWitnesses;
+    uint256 courtCouncilPool;
     struct Witness {
        address addr;
        string name;
+       uint256 reportCount;
+       uint256[] reports;
     }
     struct spamReport{
       address submitter;
@@ -91,6 +94,7 @@ contract DCArbitration {
         uint256 amount;
         string nonce;
         bool decision;
+        uint256 caseID;
         bool unlocked;
         bool claimed; //Rewarded or penalized.
     }
@@ -98,6 +102,7 @@ contract DCArbitration {
     struct Round{
         uint256 roundWeight;
         uint256 caseCount;
+        uint256 reportCount;
     }
     /*
         modifiers
@@ -325,11 +330,35 @@ contract DCArbitration {
       uint casePeriod = cases[_caseID].block + cases[_caseID].trialDuration + votingPeriod + unlockingPeriod;
       require(witnessRanks[msg.sender] > 0 && witnessRanks[msg.sender] < 22);
       require((block.number > casePeriod) && (block.number < casePeriod + challengingPeriod));
-      witnessVote[witnessRanks[msg.sender]][_caseID] = true;
+      witnessVote[witnessRanks[msg.sender]][witnesses[witnessRanks[msg.sender]].reportCount] = true;
+      witnesses[witnessRanks[msg.sender]].reportCount = witnesses[witnessRanks[msg.sender]].reportCount.add(1);
       reportVotes[_caseID] = reportVotes[_caseID].add(1);
+      witnesses[witnessRanks[msg.sender]].reports.push(_caseID);
+
       if(reportVotes[_caseID] > (witnessCount/2)){
         cases[_caseID].spam = true;
       }
+    }
+    function claimWitnessReward(){
+      require(witnessRanks[msg.sender] > 0 && witnessRanks[msg.sender] < 22);
+      uint256 NCases = witnesses[witnessRanks[msg.sender]].reportCount;
+      uint256 currentRound;
+      int256 Claimed;
+      currentRound = uint((block.number.sub(genesisBlock)).div(blocksPerRound)) +1;
+
+      for(uint256 i=0; i < NCases; i++){
+          uint256 individualRR;
+          uint256 ten = 10**4;
+          uint256 halvings = (cases[witnesses[witnessRanks[msg.sender]].reports[i]].round / roundsPerHalving);
+          individualRR = ((10**4)/2**halvings) * (RoundReward/5);
+          individualRR /= 10**4;
+          uint256 totalPay = individualRR + courtCouncilPool;
+          uint256 voterWeight = (10**8) / reportVotes[witnesses[witnessRanks[msg.sender]].reports[i]];
+          Claimed  += int(((voterWeight * (totalPay / rounds[currentRound-1].reportCount)))/10**8);
+      }
+      DCToken.mint(msg.sender, uint256(Claimed));
+      delete witnesses[witnessRanks[msg.sender]].reports;
+      witnesses[witnessRanks[msg.sender]].reportCount = 0;
     }
 
     event Reported(uint256 _caseID, address reporter);
@@ -338,7 +367,8 @@ contract DCArbitration {
       spamReport storage reportedCase = reportedCases[_caseID];
       reportedCase.submitter = msg.sender;
       reportedCase.caseID = _caseID;
-      reportedCase.accuser =  cases[caseCounter].accuser;
+      reportedCase.accuser =  cases[_caseID].accuser;
+      rounds[(block.number.sub(genesisBlock)).div(blocksPerRound)].reportCount = rounds[(block.number.sub(genesisBlock)).div(blocksPerRound)].caseCount.add(1);
       emit Reported(reportedCase.caseID, reportedCase.submitter);
         return true;
     }
@@ -404,12 +434,14 @@ contract DCArbitration {
         require(votes[msg.sender][_caseID].amount == 0);
         require(jurors[msg.sender].remaining.sub(_amount) >= 0 );
         jurors[msg.sender].remaining = jurors[msg.sender].remaining.sub(_amount);
-        votes[msg.sender][_caseID].amount = _amount;
-        votes[msg.sender][_caseID]._hash = hash;
+        votes[msg.sender][jurors[msg.sender].activeCases].caseID = _caseID;
+        votes[msg.sender][jurors[msg.sender].activeCases].amount = _amount;
+        votes[msg.sender][jurors[msg.sender].activeCases]._hash = hash;
         cases[_caseID].voteWeight = cases[_caseID].voteWeight.add(_amount);
         if(cases[_caseID]._phase != phase.VOTING){
            cases[_caseID]._phase = phase.VOTING;
         }
+        jurors[msg.sender].caseCount = jurors[msg.sender].caseCount.add(1);
         jurors[msg.sender].activeCases = jurors[msg.sender].activeCases.add(1);
         emit Voted(msg.sender, _caseID);
         return true;
@@ -443,9 +475,8 @@ contract DCArbitration {
         }
         bytes32 _hash = keccak256(dec,nonce);
         require(_hash == votes[msg.sender][_caseID]._hash);
-        jurors[msg.sender].caseCount = jurors[msg.sender].caseCount.add(1);
         jurors[msg.sender].cases.push(_caseID);
-        if(decision == true){
+        if(decision){
             cases[_caseID].ayes = cases[_caseID].ayes.add(votes[msg.sender][_caseID].amount);
         }else{
             cases[_caseID].nayes = cases[_caseID].nayes.add(votes[msg.sender][_caseID].amount);
@@ -500,7 +531,7 @@ contract DCArbitration {
             // uint256 tokenShare = ;
             uint256 ten = 10**4;
             uint256 halvings = (cases[jurors[msg.sender].cases[i]].round / roundsPerHalving);
-            individualRR = ((10**4)/2**halvings) * RoundReward;
+            individualRR = ((10**4)/2**halvings) * ((4 * RoundReward)/5);
             individualRR /= 10**4;
             uint256 voterWeight = (votes[msg.sender][jurors[msg.sender].cases[i]].amount * 10**8) / cases[jurors[msg.sender].cases[i]].voteWeight;
           if(cases[jurors[msg.sender].cases[i]].verdict == votes[msg.sender][jurors[msg.sender].cases[i]].decision){
@@ -519,9 +550,12 @@ contract DCArbitration {
             DCToken.mint(msg.sender, uint256(Claimed));
         }else if(Claimed < 0){
             if(uint256(Claimed) < DCToken.balanceOf(msg.sender) ){
-              DCToken.burn(msg.sender, uint256(Claimed));
+              DCToken.burn(msg.sender, uint256(Claimed/2));
+              courtCouncilPool = courtCouncilPool.add(uint(Claimed/2));
             }else{
-              DCToken.burnAll(msg.sender);
+              uint256 jurorBalance = DCToken.balanceOf(msg.sender);
+              DCToken.burn(msg.sender, uint256(jurorBalance/2));
+              courtCouncilPool = courtCouncilPool.add(uint(jurorBalance/2));
             }
         }
 
