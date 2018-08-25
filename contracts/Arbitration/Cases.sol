@@ -69,6 +69,13 @@ contract Cases{
        DCA.cases[_caseID].round = (block.number.sub(DCA.genesisBlock)).div(DCA.blocksPerRound);
        return verdict;
   }
+  /**
+  @notice Report a case as spam. Can only be called once on every case.
+  @param _caseID the ID of the case on the Dcourt system
+  @return {
+    "reported": "if reported"
+  }
+  */
   function reportCase(uint256 _caseID) public returns(bool reported){
     require(reportedCases[_caseID].accuser == address(0));
     spamReport storage reportedCase = reportedCases[_caseID];
