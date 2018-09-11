@@ -1,3 +1,5 @@
+pragma solidity ^0.4.18;
+
 import "./Arbitration/TokenInterface.sol";
 import "./Arbitration/ClientInterface.sol";
 import "./Arbitration/SafeMath.sol";
@@ -15,7 +17,7 @@ contract client{
   }
    mapping (uint256 => Case) cases;
   uint256 videoCount;
-  function client(address _DCourtAddress) public{
+  constructor(address _DCourtAddress) public{
     DArbitration = ClientContract(_DCourtAddress);
     DCourtAddress = _DCourtAddress;
     DArbitration.register(0x96a582e15fcf669f0506accd5372edb3e9c3dc26a341ec60200d701fc03d16c1, "whatever");

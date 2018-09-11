@@ -13,7 +13,7 @@ contract DCTPresale {
 
         event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
-        function Ownable() public {
+        constructor() public {
             owner = msg.sender;
         }
 
@@ -74,7 +74,7 @@ contract DCTPresale {
 
     event TokenPurchase(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
-    function DCTPresale(uint256 _rate, DCT _token, uint256 _cap) public {
+    constructor(uint256 _rate, DCT _token, uint256 _cap) public {
         require(_rate > 0);
         require(_token != address(0));
         require(_cap > 0);

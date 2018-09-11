@@ -1,12 +1,10 @@
 pragma solidity ^0.4.18;
-import "./Arbitration.sol"
-contract DCArbitration {
-  function isContract(address addr) private view returns (bool);
-}
-contract Cases{
+import "./Arbitration.sol";
+
+contract Cases is DCArbitration {
   address public ArbitrationAddr;
   DCArbitration DCA;
-  function Cases(address _Arbitration){
+  constructor(address _Arbitration){
     DCA = DCArbitration(_Arbitration);
   }
   /**
@@ -21,7 +19,7 @@ contract Cases{
   }
   */
   function fileCase(address _defendant, uint256 trialDuration, string _statement, string _title) public  returns(uint256 _caseID){
-      require(trialDuration >= DCA.minTrialPeriod);
+      require(trialDuration >= DCA.minTrialPeriod());
       DCA.caseCounter++;
       Case storage filedCase = DCA.cases[caseCounter];
       filedCase.client = msg.sender;

@@ -23,7 +23,7 @@ contract DCArbitration {
     uint256 roundsPerHalving;
     uint256 votingPeriod;
     uint256 unlockingPeriod;
-    uint256 minTrialPeriod;
+    uint256 public minTrialPeriod;
     uint256 challengingPeriod;
     uint256 roundWeight;
     uint256 blocksPerRound;
@@ -148,7 +148,7 @@ contract DCArbitration {
     mapping(address => uint256) public delegates;
     mapping(address => address) public voters;
     mapping (uint => Witness) public witnesses;
-    mapping(uint2 56 => mapping(uint256 => bool)) witnessVote;
+    mapping(uint256 => mapping(uint256 => bool)) witnessVote;
     mapping(uint256 => spamReport) reportedCases;
     mapping(uint => uint) reportVotes;
     mapping (address => uint) public witnessRanks;
@@ -168,7 +168,7 @@ contract DCArbitration {
     event Delegation(address indexed voter, address indexed delegate, uint256 balance);
     event Reported(uint256 _caseID, address reporter);
     event Voted(address indexed voter, uint256 _caseID);
-    function DCArbitration(address DCTAddress, uint256 _votingPeriod, uint256 _minTrialPeriod, uint256 _roundReward,  uint256 _blocksPerRound, uint256 _roundsPerHalving, uint256 _collateral, uint256 _challengingPeriod, uint8 _maxWitnesses, uint256 _unlockingPeriod) public{
+    constructor(address DCTAddress, uint256 _votingPeriod, uint256 _minTrialPeriod, uint256 _roundReward,  uint256 _blocksPerRound, uint256 _roundsPerHalving, uint256 _collateral, uint256 _challengingPeriod, uint8 _maxWitnesses, uint256 _unlockingPeriod) public{
         DCToken = DCTInterface(DCTAddress);
         votingPeriod = _votingPeriod;
         minTrialPeriod = _minTrialPeriod;
