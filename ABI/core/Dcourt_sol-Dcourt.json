@@ -1,0 +1,632 @@
+[
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "finalize",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0x05261aea"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "dividend",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x0ff8cf9b"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "minCaseDuration",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x17490969"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "numCases",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x1fa0a99f"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "minFee",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x24ec7590"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "caseId",
+        "type": "uint256"
+      },
+      {
+        "name": "evidenceId",
+        "type": "uint256"
+      }
+    ],
+    "name": "caseEvidence",
+    "outputs": [
+      {
+        "name": "body",
+        "type": "string"
+      },
+      {
+        "name": "submitter",
+        "type": "address"
+      },
+      {
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x3a92f489"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "numerator",
+        "type": "uint256"
+      },
+      {
+        "name": "denominator",
+        "type": "uint256"
+      }
+    ],
+    "name": "percent",
+    "outputs": [
+      {
+        "name": "quotient",
+        "type": "uint8"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "pure",
+    "type": "function",
+    "signature": "0x42318e3d"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "commitDuration",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x6f833811"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "juryJoinDuration",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x72485200"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "revealDuration",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x886a6de1"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "name": "salt",
+        "type": "string"
+      },
+      {
+        "name": "vote",
+        "type": "bool"
+      }
+    ],
+    "name": "reveal",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xa2357231"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "name": "body",
+        "type": "string"
+      }
+    ],
+    "name": "submitEvidence",
+    "outputs": [
+      {
+        "name": "evidenceId",
+        "type": "uint256"
+      }
+    ],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function",
+    "signature": "0xa6a7f0eb"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "allegation",
+        "type": "string"
+      },
+      {
+        "name": "firstEvidence",
+        "type": "string"
+      },
+      {
+        "name": "agreement",
+        "type": "string"
+      },
+      {
+        "name": "defendant",
+        "type": "address"
+      },
+      {
+        "name": "duration",
+        "type": "uint256"
+      },
+      {
+        "name": "appeal",
+        "type": "uint256"
+      }
+    ],
+    "name": "motion",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function",
+    "signature": "0xad0873e6"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "joinJury",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function",
+    "signature": "0xbd18f44c"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "salt",
+        "type": "string"
+      },
+      {
+        "name": "vote",
+        "type": "bool"
+      }
+    ],
+    "name": "generateCommit",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "pure",
+    "type": "function",
+    "signature": "0xc2ba39a0"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "bumpFee",
+    "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function",
+    "signature": "0xc8b72b7b"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "name": "weight",
+        "type": "uint256"
+      },
+      {
+        "name": "h",
+        "type": "bytes32"
+      }
+    ],
+    "name": "commit",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xe2543d7c"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "leaveJury",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function",
+    "signature": "0xf640c0e9"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "caseStatus",
+    "outputs": [
+      {
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0xffaad7f2"
+  },
+  {
+    "inputs": [
+      {
+        "name": "tokenContract",
+        "type": "address"
+      },
+      {
+        "name": "_minFee",
+        "type": "uint256"
+      },
+      {
+        "name": "_minCaseDuration",
+        "type": "uint256"
+      },
+      {
+        "name": "_commitDuration",
+        "type": "uint256"
+      },
+      {
+        "name": "_revealDuration",
+        "type": "uint256"
+      },
+      {
+        "name": "_juryJoinDuration",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "clientContract",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "caseId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "fee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "allegation",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "name": "agreement",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "name": "requester",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "defendant",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "duration",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "appeal",
+        "type": "uint256"
+      }
+    ],
+    "name": "Motion",
+    "type": "event",
+    "signature": "0x455a328685d04445ea4e3ea7d8e40f596f8716df8128b0255d84daa2eb69cc7d"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "caseId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "fee",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "BumpFee",
+    "type": "event",
+    "signature": "0xbf4854da0de05f03c61bb1ea31a97ed9d950e82187b5d2c0253fb4197a6734e5"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "submitter",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "caseId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "evidenceId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "body",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "EvidenceSubmission",
+    "type": "event",
+    "signature": "0xea1671f964b228b1e0b155d82a2adc5cf90ca8b9398e84fb89b3782acd1d94bd"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "weight",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "JuryJoin",
+    "type": "event",
+    "signature": "0x19aa9f700b980be183cfb3a68de51ae3967c420544dcd1ed4ee88814663d7368"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "JuryLeave",
+    "type": "event",
+    "signature": "0x4a83cd0f8108e960927b13a52bb0ccad92bcdb792c38a0fb1e41032cbbbf9381"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "caseId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "weight",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "Commit",
+    "type": "event",
+    "signature": "0x767a3c1f6dc2dc27dc5848b692c3cfc0643a9a64444f9f4c470bd0e9a60398fc"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "name": "caseId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "vote",
+        "type": "bool"
+      }
+    ],
+    "name": "Reveal",
+    "type": "event",
+    "signature": "0x0759ed7449443e6512ffcc3ec61018f5e2b416c470f1631b9eaf314833f59f6e"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "name": "caseId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "name": "verdict",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "name": "percentage",
+        "type": "uint8"
+      }
+    ],
+    "name": "Verdict",
+    "type": "event",
+    "signature": "0xdf8cb1f75a1ef33922fde1b5ff0b7323f00900502deffd7a420fb57136b6e329"
+  }
+]

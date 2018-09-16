@@ -1,4 +1,18 @@
 module.exports = {
+    dcourt: {
+        token:true, // Whether or not Dcourt token should be deployed
+        core:true, // Whether or not Dcourt core should be deployed
+        params: {
+            core:{
+                minFee: "1000000000000000", // 0.001 ETH
+                minCaseDuration: 24*60*60, // 24 hours
+                commitDuration: 24*60*60,
+                revealDuration: 24*60*60,
+                juryJoinDuration: 24*60*60
+
+            }
+        }
+    },
     dev: { // Ganache-cli options (https://github.com/trufflesuite/ganache-cli)
         port:8555,
         total_accounts:10,
@@ -7,12 +21,7 @@ module.exports = {
         //logger:console,
         gasPrice: 0
     },
-    contracts : [
-        "Token/ERC20.sol",
-        "Token/OwnablePausable.sol",
-        "Token/DCT.sol",
-        "Token/SafeMath.sol"
-    ], // To select specific contracts, replace it with an array: ["File1.sol", "Folder/File2.sol"]
+    contracts : "*", // To select specific contracts, replace it with an array: ["File1.sol", "Folder/File2.sol"]
     solc: { // Solidity compiler options (https://solidity.readthedocs.io/en/develop/using-the-compiler.html)
         optimizer: {
           enabled: true,
@@ -37,13 +46,19 @@ module.exports = {
         }
     },
     deployer: async function (contracts, network, web3, test, save) {
-        for (var contract in contracts) {
-            var gasPrice = "1000000000"; //1 Gwei
-            if(network === "dev") {
-                gasPrice = "0";
-            }
-            contracts[contract] = await contracts[contract].deploy().send({from: web3.eth.accounts[0], gasPrice, gas:4000000})
-            console.log(contract + " deployed at address " + contracts[contract].options.address)
+        var gasPrice = "50000000000"; //50 Gwei
+        if(network === "dev") {
+            gasPrice = "0";
+        }
+        if(this.dcourt.token) {
+            contracts["token/DCT.sol:DCT"] = await contracts["token/DCT.sol:DCT"].deploy().send({from: web3.eth.accounts[0], gasPrice, gas:1000000})
+            var DCT = contracts["token/DCT.sol:DCT"];
+            console.log("\nDCT deployed at address " + DCT.options.address)
+        }
+        if(this.dcourt.core) {
+            contracts["core/Dcourt.sol:Dcourt"] = await contracts["core/Dcourt.sol:Dcourt"].deploy({arguments:[DCT.options.address, this.dcourt.params.core.minFee, this.dcourt.params.core.minCaseDuration, this.dcourt.params.core.commitDuration, this.dcourt.params.core.revealDuration, this.dcourt.params.core.juryJoinDuration]}).send({from: web3.eth.accounts[0], gasPrice, gas:5000000})
+            var Dcourt = contracts["core/Dcourt.sol:Dcourt"];
+            console.log("Core deployed at address " + Dcourt.options.address)
         }
         save(contracts) // Saves contract addresses to addressbook.json. Development addresses will never be saved to addressbook.
         test(contracts) // Call the test function if you want to run unit tests after deployment. Tests will only run if network is dev
