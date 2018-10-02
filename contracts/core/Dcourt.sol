@@ -182,6 +182,7 @@ contract Dcourt {
         require(jurors[msg.sender].activeVotes == 0);
         delete jurors[msg.sender];
         emit JuryLeave(msg.sender, now);
+        msg.sender.transfer(jurors[msg.sender].weight);
     }
 
     function commit(uint id, uint weight, bytes32 h) public onlyJuror ifCaseStatus(id, "commit") {
@@ -233,15 +234,19 @@ contract Dcourt {
             percentage = percent(_case.yes, totalWeight);
             verdictWeight = _case.yes;
         }else if(stringEqual(status, "undecided")) {
-            verdict = 3;
+            verdict = 2;
             percentage = 50;
             verdictWeight = _case.yes; // Both yes and no are equal in this case
         } else {
             revert();
         }
-        IClient client;
         emit Verdict(id, verdict, percentage);
-        client.onVerdict(id, verdict, percentage, totalWeight, verdictWeight);
+        IClient client;
+        if(_case.yes == 0 && _case.no == 0) {
+            client.onVerdict.value(_case.fee)(id, verdict, percentage, totalWeight, verdictWeight); // If not one juror votes, return case fee to client contract (half original fee).
+        }else{
+            client.onVerdict(id, verdict, percentage, totalWeight, verdictWeight);
+        }
     }
 
     // Getters
@@ -292,6 +297,39 @@ contract Dcourt {
         timestamp = _evidence.timestamp;
     }
 
+    function jurorShare(uint caseId, address account) public view returns (uint share) {
+        require(stringEqual(caseStatus(caseId), "yes") || stringEqual(caseStatus(caseId), "no") || stringEqual(caseStatus(caseId), "undecided"));
+        Case memory _case = cases[caseId];
+        Juror storage _juror = jurors[account];
+        Vote memory _vote = _juror.cases[caseId];
+        uint jurorWeight = _vote.weight;
+        bool unrevealed = (bytes(_vote.salt).length == 0);
+        if(_case.yes == _case.no) { //If undecided
+            if(unrevealed) { // If Juror did not reveal vote
+                share = jurorWeight / 2; // Only return half of original weight, the rest is burned.
+            }else {
+                share = jurorWeight; // Return full weight;
+            }
+        }else{ // If decided
+            uint teamWeight;
+            if(_vote.opinion) {
+                teamWeight = _case.yes;
+            } else {
+                teamWeight = _case.no;
+            }
+            uint totalWeight = (_case.yes + _case.no);
+            uint teamShare = ((teamWeight / totalWeight) * (totalWeight - teamWeight)) + teamWeight; // WRONG, percentage not share
+            if()
+            share = teamShare / jurorWeight; //WRONG
+            if(unrevealed) {
+                share = share / 2; // Halve share as a penalty for unrevealing
+            }else if((_case.yes > _case.no && _vote.opinion) || (_case.no > _case.yes && !_vote.opinion)) { // If winner; 'else if' because winner cannot be unrevealed, saves gas.
+                // Add fee share
+                // Add unrevealed share
+            }
+        }
+    }
+
     // Internal
 
     function divide(uint numerator, uint denominator) internal pure returns(uint quotient, uint remainder) {
@@ -299,7 +337,7 @@ contract Dcourt {
         remainder = numerator - denominator * quotient;
     }
 
-    function percent(uint numerator, uint denominator) public pure returns(uint8 quotient) {
+    function percent(uint numerator, uint denominator) internal pure returns(uint8 quotient) {
             // caution, check safe-to-multiply here
             uint _numerator  = numerator * 10 ** 3;
             // with rounding of last digit

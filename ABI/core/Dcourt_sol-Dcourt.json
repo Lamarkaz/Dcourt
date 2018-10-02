@@ -108,30 +108,6 @@
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "name": "numerator",
-        "type": "uint256"
-      },
-      {
-        "name": "denominator",
-        "type": "uint256"
-      }
-    ],
-    "name": "percent",
-    "outputs": [
-      {
-        "name": "quotient",
-        "type": "uint8"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "pure",
-    "type": "function",
-    "signature": "0x42318e3d"
-  },
-  {
-    "constant": true,
     "inputs": [],
     "name": "commitDuration",
     "outputs": [
@@ -174,6 +150,30 @@
     "stateMutability": "view",
     "type": "function",
     "signature": "0x886a6de1"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "caseId",
+        "type": "uint256"
+      },
+      {
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "jurorShare",
+    "outputs": [
+      {
+        "name": "share",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function",
+    "signature": "0x8c14e919"
   },
   {
     "constant": false,

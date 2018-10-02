@@ -43,15 +43,6 @@ Returns the evidence body, the address of the submitter and the evidence submiss
 | uint256 | caseId |
 | uint256 | evidenceId |
 ___
- ##### function percent `0x42318e3d` 
- constant pure 
-
-
- Type | Name |
---- | --- |
-| uint256 | numerator |
-| uint256 | denominator |
-___
  ##### function commitDuration `0x6f833811` 
  constant view 
 
@@ -66,6 +57,15 @@ ___
  constant view 
 
 
+___
+ ##### function jurorShare `0x8c14e919` 
+ constant view 
+
+
+ Type | Name |
+--- | --- |
+| uint256 | caseId |
+| address | account |
 ___
  ##### function reveal `0xa2357231` 
   nonpayable 
