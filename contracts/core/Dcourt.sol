@@ -319,7 +319,7 @@ contract Dcourt {
             }
             uint totalWeight = (_case.yes + _case.no);
             uint teamShare = ((teamWeight / totalWeight) * (totalWeight - teamWeight)) + teamWeight; // WRONG, percentage not share
-            if()
+            //if()
             share = teamShare / jurorWeight; //WRONG
             if(unrevealed) {
                 share = share / 2; // Halve share as a penalty for unrevealing

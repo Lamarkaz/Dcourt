@@ -3,7 +3,7 @@
 
 
 ## [core/Dcourt.sol:Dcourt](../contracts/core/Dcourt.sol)
-`Solidity version 0.4.24+commit.e67f0147`
+`Solidity version 0.4.25+commit.59dbf8f1`
 
 
  ##### function finalize `0x05261aea` 
@@ -250,7 +250,7 @@ ___
 
 
 ## [token/DCT.sol:DCT](../contracts/token/DCT.sol)
-`Solidity version 0.4.24+commit.e67f0147`
+`Solidity version 0.4.25+commit.59dbf8f1`
 
 
  ##### function name `0x06fdde03` 
@@ -425,7 +425,7 @@ ___
 
 
 ## [token/ERC20.sol:ERC20](../contracts/token/ERC20.sol)
-`Solidity version 0.4.24+commit.e67f0147`
+`Solidity version 0.4.25+commit.59dbf8f1`
 Standard ERC20 token
 
  ##### function approve `0x095ea7b3` 
@@ -519,19 +519,19 @@ ___
 
 
 ## [utils/Address.sol:Address](../contracts/utils/Address.sol)
-`Solidity version 0.4.24+commit.e67f0147`
+`Solidity version 0.4.25+commit.59dbf8f1`
 
 
 
 
 ## [utils/ECDSA.sol:ECDSA](../contracts/utils/ECDSA.sol)
-`Solidity version 0.4.24+commit.e67f0147`
+`Solidity version 0.4.25+commit.59dbf8f1`
 Elliptic curve signature operations
 
 
 
 ## [utils/Ownable.sol:Ownable](../contracts/utils/Ownable.sol)
-`Solidity version 0.4.24+commit.e67f0147`
+`Solidity version 0.4.25+commit.59dbf8f1`
 Ownable
 
  ##### function renounceOwnership `0x715018a6` 
@@ -582,7 +582,7 @@ ___
 
 
 ## [utils/SafeMath.sol:SafeMath](../contracts/utils/SafeMath.sol)
-`Solidity version 0.4.24+commit.e67f0147`
+`Solidity version 0.4.25+commit.59dbf8f1`
 SafeMath
 
 
